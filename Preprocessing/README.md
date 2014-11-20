@@ -1,17 +1,20 @@
 # process_all.sh #
 
-1 Download:
+1. Download:
     - Get the verbargs.XX-of-99.gz for XX = 00 to 98 (total 99 files).
     - downloaded from http://comondatastorage.googleapis.com/books/syntactic-ngrams/eng/
-2 Filter the n-gram files:
+    
+2. Filter the n-gram files:
     - Extract the verbarg (keeping the `.gz` file just in case we need it).
     - Process the data using `FilterNGrams.hs` (output `verbargs.XX-of-99.prep`).
     - Delete the extracted verbarg.
-3 Put everything in one sorted file:
+    
+3. Put everything in one sorted file:
     - Create a temporary file with the names of the files we want to process (`verbargs.XX-of-99.prep`).
     - Sort the contents of all of those files alphanumerically into `all_VSOs.sorted`.
     - uses the unix command `sort` (external r-way merge).
-4 Concatenate like VSOs
+    
+4. Concatenate like VSOs
     - Concatenate `all_VSOs.sorted` using `ConcatVSO.hs`
     - Assumes that the file has already been sorted!
 
@@ -21,7 +24,7 @@
 ## Input ##
 Syntactic n-gram files from Google.
 
-## Output ##*
+## Output ##
 Pruned VSO (verb, subject, object) files. Each VSO is separated by a newline, and
 each line has the following format:
 
