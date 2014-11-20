@@ -1,3 +1,7 @@
+Everything can now be done by running the script `process_all.sh`.
+In the end it should produce a file called `all_VSOs.sorted.concat`, which is the final
+data file.
+
 # process_all.sh #
 
 1. Download:
