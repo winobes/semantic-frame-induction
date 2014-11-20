@@ -34,7 +34,7 @@ wait
 
 # Sort all the resulting VSO files.
 rm -f "filenames.tmp"
-for i in $(seq 0 98); do; printf "$(file $i).prep" >> "filenames.tmp"; done
+for i in $(seq 0 98); do printf "$(file $i).prep\0" >> "filenames.tmp"; done
 echo "Sorting everything into all_VSOs.sorted..."
 sort --output="all_VSOs.sorted" --files0-from=filenames.tmp
 rm "filenames.tmp"
