@@ -64,13 +64,13 @@ logLn :: String -> IO ()
 logLn s = do
   time <- fmap show getCurrentTime
   let s' = time ++ "\t" ++ s ++ "\n"
-  appendFile "ParseLog" s'
+  appendFile "log" s'
   putStrLn $ s
 
 processFile :: String -> IO ()
 processFile inF = do
   let outF = inF ++ ".prep"
-  logLn $ "Processing file: " ++ inF 
+  logLn $ "Filtering file: " ++ inF ++ "for VSOs."
   result <- (try $ readFile inF) :: IO (Either SomeException String)
   case result of 
     Left ex -> logLn $ "File " ++ inF ++ " not parsed: " ++ show ex ++ "\n"
