@@ -20,9 +20,12 @@ function process {
     "wget http://ommondatastorage.googleapis.com/books/syntactic-ngrams/eng/$1.gz"
   fi
   # Unzip and filter for VSO n-grams
-  gunzip -f --keep "$1.gz" 
-  ./FilterNGrams $1 
-  rm $1 
+  if [ ! -f "$1.gz" ];
+  then
+    gunzip -f --keep "$1.prep" 
+    ./FilterNGrams $1 
+  fi
+  rm -f $1 
 }
 
 # Do four of  at a time to speed things up.
