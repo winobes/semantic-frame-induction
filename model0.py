@@ -1,6 +1,8 @@
 import numpy as np
 from collections import OrderedDict
 
+args = ('v','s','o')
+
 def em(F, alpha):
     """
     Uses EM to induce frames via the model 0 generative story.
@@ -16,13 +18,13 @@ def em(F, alpha):
     # know what the indexes refer to in the end
     # TODO: if we end up using index arrays, some of this conversion
     # to indices should be done in the preprocessing stage.
-    vocab = {'v': {}, 's': {}, 'o': {}}
-    counts = {'v': [], 's': [], 'o': []}
-    V = {'v': 0, 's': 0, 'o': 0}  # size of the vocabulary
+    vocab = {a: {} for a in args}
+    counts = {a: [] for a in args}
+    V = {a: 0 for a in args}  # size of the vocabulary
     data = [] 
     with open("Preprocessing/all_VSOs.sorted.concat") as f:
         for v,s,o,c in map(lambda x: x.split(' ')[:-1], f.read().splitlines()):
-            for (w, a) in zip((v,s,o), ('v','s','o')):
+            for (w, a) in zip((v,s,o), args):
                 if not w in vocab[a]: 
                     vocab[a][w] = V[a]
                     V[a] += 1
@@ -40,32 +42,27 @@ def em(F, alpha):
     theta = np.ones(F) / F
 
     # randomly initialize the argument distributions for each frame
-    phi_v = np.random.dirichlet(np.ones(V['v']) * alpha, F).T
-    phi_s = np.random.dirichlet(np.ones(V['s']) * alpha, F).T
-    phi_o = np.random.dirichlet(np.ones(V['o']) * alpha, F).T
-
+    phi = {a: np.random.dirichlet(np.ones(V[a]) * alpha, F).T for a in args}
+    
     mu = np.zeros([N,F])
     while True:
         # E-step
-        mu = phi_v[data[0]] * phi_s[data[1]] * phi_o[data[2]] * theta
+        mu = phi['v'][data[0]] * phi['s'][data[1]] * phi['o'][data[2]] * theta
 
         # M-step
         theta_new = mu.sum(axis=0) 
-        phi_v_new = np.outer(counts['v'], mu.sum(axis=0))
-        phi_s_new = np.outer(counts['s'], mu.sum(axis=0))
-        phi_o_new = np.outer(counts['o'], mu.sum(axis=0))
+        phi_new = {a: np.outer(counts[a], mu.sum(axis=0)) for a in args}
 
-        delta = (abs(np.subtract(phi_v, phi_v_new).sum()) +
-                 abs(np.subtract(phi_s, phi_s_new).sum()) +
-                 abs(np.subtract(phi_o, phi_o_new).sum()) +
+        delta = (sum(abs(np.subtract(phi[a], phi_new[a]).sum()) for a in args) +
                  abs(np.subtract(theta, theta_new).sum()))
 
+        phi = phi_new
         theta = theta_new
-        phi_v = phi_v_new
-        phi_s = phi_s_new
-        phi_o = phi_o_new
 
         if delta < 0.001: 
             return np.argmax(mu, axis=1)
 
-print(em(100,1.5))
+F = 10
+frames = em(F,1.5)
+for f in range(F):
+    print (sum(frames == f), "from frame", f)
