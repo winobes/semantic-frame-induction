@@ -89,17 +89,18 @@ Since $\sum_{f=1}^F = 1$ we can use Lagrange function:
   \frac{\sum_{d=1}^D\sum_{f=1}^F\mu_d(f)}{\lambda *} &= 1 \rightarrow \lambda *=\sum_{d=1}^D\sum_{f=1}^F\mu_d(f)  \Rightarrow \notag\\
     & \text{replacing } \lambda \text{ for } \lambda* \Rightarrow \notag\\
     \theta(f) &= \frac{\sum_{d=1}^D\mu_d(f)}{\sum_{d=1}^D\sum_{f=1}^F\mu_d(f)} \notag\\
-    &= something
 \end{align}
 
 \subsection{$\arg\max_\vp$}
 Since $\sum_{w=1}^V = 1$ we can use Lagrange function:
 \begin{align}
   \arg\max_{\vp^a_f} L(\vp^a_f,\lambda) & = \sum_{f=1}^F\sum_{d=1}^D \mu_d(f)\log(\vp^a_f(a)+\lambda(\sum_{w=1}^V\vp_a^f(a) -1 )) \Rightarrow \notag\\
-  L(\theta,\lambda)\frac{df}{d\vp_f^a(a)} & = \frac{\sum_{d=1}^D\mu_d(f)}{\vp_f^a(a)}\ldots = 0 \Rightarrow \notag
+  L(\theta,\lambda)\frac{da}{d\vp_f^a(a)} & = \frac{\sum_{d=1}^D\mu_d(f)}{\vp_f^a(a)}-\lambda = 0 \Rightarrow \notag\\
+  \dots \notag\\
+  \vp_f^a(a) &= \sum^D_{d=1}\mu_d(f)*C(w,a) \notag \\
 \end{align}
+(where $C(w,a)$ is the count of $w$ appearing as $a$).\\
 
-[I am stuck here. But I guess we can replace $\sum_{w=1}^V\vp_a^f(a)$ with the count of word $w$ occuring as argument $a$ $\rightarrow$ $C_{w,a}\vp^a_f(a)$ \\ but the still, I cannot get a nice derivative.\\
-I'll look into it tonight again.]
+
 
 \end{document}
