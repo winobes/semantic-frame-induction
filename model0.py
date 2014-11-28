@@ -1,5 +1,9 @@
 import numpy as np
-from collections import OrderedDict
+
+# TODO
+# - make better comments
+# - make indexing args consistent
+# - return something useful
 
 args = ('v','s','o')
 
