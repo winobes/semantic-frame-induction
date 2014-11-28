@@ -19,18 +19,16 @@ def em(F, alpha):
     # TODO: if we end up using index arrays, some of this conversion
     # to indices should be done in the preprocessing stage.
     vocab = {a: {} for a in args}
-    counts = {a: [] for a in args}
+    counts = []
     V = {a: 0 for a in args}  # size of the vocabulary
     data = [] 
     with open("Preprocessing/all_VSOs.sorted.concat") as f:
         for v,s,o,c in map(lambda x: x.split(' ')[:-1], f.read().splitlines()):
+            counts.append(int(c))
             for (w, a) in zip((v,s,o), args):
                 if not w in vocab[a]: 
                     vocab[a][w] = V[a]
                     V[a] += 1
-                    counts[a].append(int(c))
-                else: 
-                    counts[a][vocab[a][w]] += int(c)
             data.append((vocab['v'][v], vocab['s'][s], vocab['o'][o]))
 
     # make the index arrays
@@ -45,13 +43,25 @@ def em(F, alpha):
     phi = {a: np.random.dirichlet(np.ones(V[a]) * alpha, F).T for a in args}
     
     mu = np.zeros([N,F])
+    t = 0
     while True:
+        print(theta.sum())
+        print(phi['v'].sum(axis=0))
+        t += 1
         # E-step
         mu = phi['v'][data[0]] * phi['s'][data[1]] * phi['o'][data[2]] * theta
 
+        print("iteration", t)
+        print_clustering(F, mu)
+
         # M-step
         theta_new = mu.sum(axis=0) 
-        phi_new = {a: np.outer(counts[a], mu.sum(axis=0)) for a in args}
+
+        phi_new = {}
+        w = mu.T * counts
+        for (a_i,a) in enumerate(args):
+            phi_new[a] = ( np.array([np.bincount(data[a_i], weights=w[f]) for f in range(F)]).T
+                         / np.dot(counts, mu) )
 
         delta = (sum(abs(np.subtract(phi[a], phi_new[a]).sum()) for a in args) +
                  abs(np.subtract(theta, theta_new).sum()))
@@ -62,7 +72,12 @@ def em(F, alpha):
         if delta < 0.001: 
             return np.argmax(mu, axis=1)
 
-F = 10
-frames = em(F,1.5)
-for f in range(F):
-    print (sum(frames == f), "from frame", f)
+def print_clustering(F, mu):
+    frames = np.argmax(mu, axis=1)
+    frame_count = {f: 0 for f in range(F)} 
+    for f in frames:
+        frame_count[f] += 1
+    for f in frame_count:
+        print(frame_count[f], "unique VSOs from frame", f)
+
+frames = em(10,1.5)
