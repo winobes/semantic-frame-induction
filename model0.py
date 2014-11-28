@@ -45,8 +45,9 @@ def em(F, alpha):
     mu = np.zeros([N,F])
     t = 0
     while True:
-        print(theta.sum())
-        print(phi['v'].sum(axis=0))
+        assert(is_prob_dist(theta, .01))
+        assert(all(all(is_prob_dist(phi[a][:,f], .01) for f in range(F)) for a in args))
+
         t += 1
         # E-step
         mu = phi['v'][data[0]] * phi['s'][data[1]] * phi['o'][data[2]] * theta
@@ -55,7 +56,7 @@ def em(F, alpha):
         print_clustering(F, mu)
 
         # M-step
-        theta_new = mu.sum(axis=0) 
+        theta_new = mu.sum(axis=0) / mu.sum()
 
         phi_new = {}
         w = mu.T * counts
@@ -63,13 +64,14 @@ def em(F, alpha):
             phi_new[a] = ( np.array([np.bincount(data[a_i], weights=w[f]) for f in range(F)]).T
                          / np.dot(counts, mu) )
 
-        delta = (sum(abs(np.subtract(phi[a], phi_new[a]).sum()) for a in args) +
-                 abs(np.subtract(theta, theta_new).sum()))
+        delta = (sum(abs(np.subtract(phi[a], phi_new[a])).sum() for a in args) +
+                 abs(np.subtract(theta, theta_new)).sum())
 
         phi = phi_new
         theta = theta_new
 
-        if delta < 0.001: 
+        print("delta = ", delta)
+        if delta < 0.1: 
             return np.argmax(mu, axis=1)
 
 def print_clustering(F, mu):
@@ -80,4 +82,7 @@ def print_clustering(F, mu):
     for f in frame_count:
         print(frame_count[f], "unique VSOs from frame", f)
 
+def is_prob_dist(p, epsilon):
+    return abs(1 - sum(p)) < epsilon
+    
 frames = em(10,1.5)
