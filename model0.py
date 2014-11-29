@@ -1,8 +1,6 @@
 import numpy as np
 
 # TODO
-# - make better comments
-# - make indexing args consistent
 # - return something useful
 
 args = ('v','s','o')
@@ -14,48 +12,55 @@ def em(F, alpha):
     F     - the number of frames to induce
     alpha - the dirichlet prior for initializing word distributions (alhpa >= 1)
     Other variables:
-    theta - distribution of frames
+    N             - the number of data points (VSO triples).
+    V             - for each argument, the size of its vocabulary
+    word_to_index - dictionaries (one for each argument) that associates each word in the
+                    vocabulary with a unique (integer) index.
+    index_to_word - the inverse maps of `word_to_index`.
+    data          - three 1XN arrays of data points (as indices).
+    counts        - 1XN array of integers. The number of occurances of each VSO in `data`.
+    theta         - distribution over F of frames
+    phi           - three FXV arrays. For each argument and each frame, a probability
+                    distribution over words.
+    mu            - an NXF array. For each datapoint, a distribution over frames that
+                    gives the (estimated posterior) probability that the frame produced 
+                    the observed datapoint
     """
 
-    # load our tuples into temporary lists 
-    # also keep track of all the words it the vocabulary, so we
-    # know what the indexes refer to in the end
-    # TODO: if we end up using index arrays, some of this conversion
-    # to indices should be done in the preprocessing stage.
-    vocab = {a: {} for a in args}
+    # Load the data.
     counts = []
-    V = {a: 0 for a in args}  # size of the vocabulary
-    data = [] 
+    word_to_index = {a: {} for a in args}
+    index_to_word = {a: {} for a in args}
+    V = {a: 0 for a in args}  
+    data = {a: [] for a in args}
     with open("Preprocessing/all_VSOs.sorted.concat") as f:
         for v,s,o,c in map(lambda x: x.split(' ')[:-1], f.read().splitlines()):
             counts.append(int(c))
             for (w, a) in zip((v,s,o), args):
-                if not w in vocab[a]: 
-                    vocab[a][w] = V[a]
+                if not w in word_to_index[a]: 
+                    word_to_index[a][w] = V[a]
+                    index_to_word[a][V[a]] = w
                     V[a] += 1
-            data.append((vocab['v'][v], vocab['s'][s], vocab['o'][o]))
-
-    # make the index arrays
+                data[a].append(word_to_index[a][w])
     N = len(data)
 
-    data = np.array(data).T
-
-    # initialize theta to the uniform distribution
+    # Initialize theta to the uniform distribution.
     theta = np.ones(F) / F
-
-    # randomly initialize the argument distributions for each frame
+    # Draw from a dirichlet distribution to randomly initialize each frame.
     phi = {a: np.random.dirichlet(np.ones(V[a]) * alpha, F).T for a in args}
-    
+    # Create the array for storing posterior estimates.
     mu = np.zeros([N,F])
+
     t = 0
     while True:
+        t += 1 # iteration
+
+        # Check that all our distributions still sum to 1.
         assert(is_prob_dist(theta, .01))
         assert(all(all(is_prob_dist(phi[a][:,f], .01) for f in range(F)) for a in args))
 
-        t += 1
         # E-step
-        mu = phi['v'][data[0]] * phi['s'][data[1]] * phi['o'][data[2]] * theta
-
+        mu = phi['v'][data['v']] * phi['s'][data['s']] * phi['o'][data['o']] * theta
         print("iteration", t)
         print_clustering(F, mu)
 
@@ -65,16 +70,18 @@ def em(F, alpha):
         phi_new = {}
         w = mu.T * counts
         for (a_i,a) in enumerate(args):
-            phi_new[a] = ( np.array([np.bincount(data[a_i], weights=w[f]) for f in range(F)]).T
+            phi_new[a] = ( np.array([np.bincount(data[a], weights=w[f]) for f in range(F)]).T
                          / np.dot(counts, mu) )
 
+        # Measure how much the distributions have changed from in the previous step.
         delta = (sum(abs(np.subtract(phi[a], phi_new[a])).sum() for a in args) +
                  abs(np.subtract(theta, theta_new)).sum())
+        print("delta = ", delta)
 
+        # Relplace the old M-step estimates with the new ones.
         phi = phi_new
         theta = theta_new
 
-        print("delta = ", delta)
         if delta < 0.1: 
             return np.argmax(mu, axis=1)
 
