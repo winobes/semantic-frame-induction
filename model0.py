@@ -1,8 +1,5 @@
 import numpy as np
 
-# TODO
-# - return something useful
-
 args = ('v','s','o')
 
 def em(F, alpha):
@@ -90,7 +87,7 @@ def em(F, alpha):
         phi = phi_new
         theta = theta_new
 
-        if delta < 100: 
+        if delta < 0.1: 
 
             frame_dists = {f: {a: [(prob, index_to_word[a][i]) 
                 for (i,prob) in enumerate(phi['v'].T[f])] for a in args} for f in range(F)}
