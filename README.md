@@ -3,8 +3,8 @@
 ## Stage 1
 
 - Derive EM for model 0 (as in the Rooth paper)
-- Get the data ready for this (verbargs from google n-gram)
-- implement the EM
+- ~~Get the data ready for this (verbargs from google n-gram)~~
+- ~~implement the EM~~
 - testing our implementation
     - use some measures (e.g. DiceSim to framenet)
     - maybe try to find Gold Standard data
