@@ -98,8 +98,8 @@ def em(F, alpha):
             frame_assign = {(index_to_word(data[a][i]) for a in args): np.argmax(mu, axis=1)[i]
                     for i in range(N)}
 
-            print(frame_dists, frame_assign, theta, sep='\n\n\n')
-            return
+            # print(frame_dists, frame_assign, theta, sep='\n\n\n')
+            return(frame_dists, frame_assign, theta, data)
 
 def print_clustering(F, mu):
     frames = np.argmax(mu, axis=1)
