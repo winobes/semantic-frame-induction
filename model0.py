@@ -107,7 +107,7 @@ def print_clustering(F, mu):
     for f in frames:
         frame_count[f] += 1
     for f in frame_count:
-        print(frame_count[f].rjust(8), "\tunique VSOs in frame", f)
+        print(str(frame_count[f]).rjust(8), " unique VSOs in frame", f)
     print("")
 
 def is_prob_dist(p, epsilon):
