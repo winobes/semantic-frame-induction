@@ -8,7 +8,7 @@ def em(F, alpha):
 
     Arguments:
     F     - the number of frames to induce
-    alpha - the dirichlet prior for initializing word distributions (alhpa >= 1)
+    alpha - the dirichlet prior for initializing word distributions (alpha >= 1)
 
     Other variables:
     N             - the number of data points (VSO triples).
@@ -81,7 +81,7 @@ def em(F, alpha):
         # Measure how much the distributions have changed from in the previous step.
         delta = (sum(abs(np.subtract(phi[a], phi_new[a])).sum() for a in args) +
                  abs(np.subtract(theta, theta_new)).sum())
-        print("delta = ", delta)
+        print("delta = ", delta,"\n\n")
 
         # Relplace the old M-step estimates with the new ones.
         phi = phi_new
@@ -98,7 +98,8 @@ def em(F, alpha):
             frame_assign = {(index_to_word(data[a][i]) for a in args): np.argmax(mu, axis=1)[i]
                     for i in range(N)}
 
-            return (frame_dists, frame_assign, theta) 
+            print(frame_dists, frame_assign, theta, sep='\n\n\n')
+            return
 
 def print_clustering(F, mu):
     frames = np.argmax(mu, axis=1)
@@ -106,7 +107,8 @@ def print_clustering(F, mu):
     for f in frames:
         frame_count[f] += 1
     for f in frame_count:
-        print(frame_count[f], "\tunique VSOs in frame", f)
+        print(frame_count[f].rjust(8), "\tunique VSOs in frame", f)
+    print("")
 
 def is_prob_dist(p, epsilon):
     return abs(1 - sum(p)) < epsilon
