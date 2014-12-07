@@ -72,7 +72,7 @@ def em(F, alpha, counts, word_to_index, index_to_word, V, data):
         phi = phi_new
         theta = theta_new
 
-        if delta < 100: 
+        if delta < 0.1: 
 
             frame_dists = {f: {a: {index_to_word[a][i]: prob 
                 for (i,prob) in enumerate(phi[a].T[f])} for a in args} for f in range(F)}
