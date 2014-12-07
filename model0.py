@@ -2,7 +2,7 @@ import numpy as np
 
 args = ('v','s','o')
 
-def em(F, alpha):
+def em(F, alpha, counts, word_to_index, index_to_word, V, data):
     """
     Uses EM to induce frames via the model 0 generative story.
 
@@ -34,23 +34,8 @@ def em(F, alpha):
     theta         - (as above)
     """
 
-    # Load the data.
-    counts = []
-    word_to_index = {a: {} for a in args}
-    index_to_word = {a: {} for a in args}
-    V = {a: 0 for a in args}  
-    data = {a: [] for a in args}
-    with open("Preprocessing/all_VSOs.sorted.concat") as f:
-        for v,s,o,c in map(lambda x: x.split(' ')[:-1], f.read().splitlines()):
-            counts.append(int(c))
-            for (w, a) in zip((v,s,o), args):
-                if not w in word_to_index[a]: 
-                    word_to_index[a][w] = V[a]
-                    index_to_word[a][V[a]] = w
-                    V[a] += 1
-                data[a].append(word_to_index[a][w])
-    N = len(data)
-
+    N = len(data['v'])
+    #print(" *** in mod0: data len: ", N)
     # Initialize theta to the uniform distribution.
     theta = np.ones(F) / F
     # Draw from a dirichlet distribution to randomly initialize each frame.
@@ -68,8 +53,8 @@ def em(F, alpha):
 
         # E-step
         mu = phi['v'][data['v']] * phi['s'][data['s']] * phi['o'][data['o']] * theta
-        print("Iteration", t)
-        print_clustering(F, mu)
+        print("trn* ",end="", flush=True)
+        #print_clustering(F, mu)
 
         # M-step
         theta_new = mu.sum(axis=0) / mu.sum()
@@ -81,25 +66,23 @@ def em(F, alpha):
         # Measure how much the distributions have changed from in the previous step.
         delta = (sum(abs(np.subtract(phi[a], phi_new[a])).sum() for a in args) +
                  abs(np.subtract(theta, theta_new)).sum())
-        print("delta = ", delta,"\n\n")
+        #print("delta = ", delta,"\n\n")
 
         # Relplace the old M-step estimates with the new ones.
         phi = phi_new
         theta = theta_new
 
-        if delta < 0.1: 
+        if delta < 100: 
 
-            frame_dists = {f: {a: [(prob, index_to_word[a][i]) 
-                for (i,prob) in enumerate(phi['v'].T[f])] for a in args} for f in range(F)}
-            for f in range(F):
-                for a in args:
-                    frame_dists[f][a].sort(reverse=True)
-
-            frame_assign = {(index_to_word(data[a][i]) for a in args): np.argmax(mu, axis=1)[i]
+            frame_dists = {f: {a: {index_to_word[a][i]: prob 
+                for (i,prob) in enumerate(phi[a].T[f])} for a in args} for f in range(F)}
+            frames = np.argmax(mu, axis=1)
+            frame_assign = {tuple([index_to_word[a][data[a][i]] for a in args]): frames[i]
                     for i in range(N)}
+            word_data = [tuple(index_to_word[a][data[a][i]] for a in args) for i in range(N)]
 
-            print(frame_dists, frame_assign, theta, sep='\n\n\n')
-            return
+            # print(frame_dists, frame_assign, theta, sep='\n\n\n')
+            return(frame_dists, frame_assign, theta)
 
 def print_clustering(F, mu):
     frames = np.argmax(mu, axis=1)
