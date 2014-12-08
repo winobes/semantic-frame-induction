@@ -52,8 +52,8 @@ def runTests(*params):
         frames = params[0]
         alphas = params[1]
     else:
-        frames = [5*(n+1) for n in range(10)]
-        alphas = [1+0.1*n for n in range(11)]
+        frames = [25, 35, 45, 55, 70 ]#10*(n+1) for n in range(100)]
+        alphas = [1.3, 1.5 , 1.7 ]#1+0.1*n for n in range(11)]
 
     print("\n ==================================\n Running tests with: \n frames:\t", frames, "\n alpha's:\t ", alphas, "\n")
 
@@ -62,20 +62,35 @@ def runTests(*params):
     
     results = {(f,a): [] for f in frames for a in alphas}
     resCur = 0
+    result_plots = plt.figure()
+
+    i=1
     for a in alphas:
         for f in frames:
             print( "\n training with: f=%d , a=%f" %(f,a)  )
             model = mod0.em(f,a,*trnData)
             print("\n testing...")
             res = evalu.frame_coherency(model, xvData)
-            results[(f,a)] = [model, res]
+            #results[(f,a)] = [model, res]
             print(" coherency: ", res)
             if res > resCur :
+                bestMod = model
                 resCur = res
                 best = (f,a)
-    
-    print(" Best coherence with: \n frames: ", best[0], "\n alpha: ", best[1] ,"\n coherency on xValidation set: ", results[best][1],
-                  "\n coherency on testset: ", evalu.frame_coherency(model, tstData) )
+            results[(f,a)] = res
+        y = [results[(f,a)] for f in frames ]
+
+        
+        plt.subplot(a+1,1,i)
+        plt.plot(frames,y,marker='o', linestyle='--')
+        plt.ylabel('coherency')
+        plt.xlabel('frames, with alpha=%f' %a)
+        i += 1
+
+    result_plots.tight_layout()
+    result_plots.show()
+#    print(" Best coherence with: \n frames: ", best[0], "\n alpha: ", best[1] ,"\n coherency on xValidation set: ", results[best][1],
+#                  "\n coherency on testset: ", evalu.frame_coherency(model, tstData) )
 
 
 runTests()
