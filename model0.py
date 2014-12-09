@@ -53,7 +53,7 @@ def em(F, alpha, counts, word_to_index, index_to_word, V, data):
 
         # E-step
         mu = phi['v'][data['v']] * phi['s'][data['s']] * phi['o'][data['o']] * theta
-        print("trn* ",end="", flush=True)
+        print(".",end="", flush=True)
         #print_clustering(F, mu)
 
         # M-step

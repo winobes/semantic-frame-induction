@@ -2,6 +2,7 @@ import model0 as mod0
 import evaluation as evalu
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
 args = ('v','s','o')
 
@@ -52,8 +53,8 @@ def runTests(*params):
         frames = params[0]
         alphas = params[1]
     else:
-        frames = [25, 35]#, 45, 55, 70 ]#10*(n+1) for n in range(100)]
-        alphas = [1.3, 1.5]# , 1.7 ]#1+0.1*n for n in range(11)]
+        frames = [10,15,20,25,30,35,40,45,50,55]#, 45, 55, 70 ]#10*(n+1) for n in range(100)]
+        alphas = [0.2,0.3]# , 1.7 ]#1+0.1*n for n in range(11)]
 
     print("\n ==================================\n Running tests with: \n frames:\t", frames, "\n alpha's:\t ", alphas, "\n")
 
@@ -79,10 +80,12 @@ def runTests(*params):
                 best = (f,a)
             results[(f,a)] = res
 
-    with open('results/'+ f +'-'+a + '.pkl', 'wb') as fl:
+    with open('results/1stFrms_0203alph.pkl', 'wb') as fl:
         pickle.dump(results, fl, pickle.HIGHEST_PROTOCOL)
 """
 
+with open('obj/' + name + '.pkl', 'rb') as f:
+        return pickle.load(f)
 
             y = [results[(f,a)] for f in frames ]
 
