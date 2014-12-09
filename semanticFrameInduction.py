@@ -52,8 +52,8 @@ def runTests(*params):
         frames = params[0]
         alphas = params[1]
     else:
-        frames = [25, 35, 45, 55, 70 ]#10*(n+1) for n in range(100)]
-        alphas = [1.3, 1.5 , 1.7 ]#1+0.1*n for n in range(11)]
+        frames = [25, 35]#, 45, 55, 70 ]#10*(n+1) for n in range(100)]
+        alphas = [1.3, 1.5]# , 1.7 ]#1+0.1*n for n in range(11)]
 
     print("\n ==================================\n Running tests with: \n frames:\t", frames, "\n alpha's:\t ", alphas, "\n")
 
@@ -78,7 +78,13 @@ def runTests(*params):
                 resCur = res
                 best = (f,a)
             results[(f,a)] = res
-        y = [results[(f,a)] for f in frames ]
+
+    with open('results/'+ f +'-'+a + '.pkl', 'wb') as fl:
+        pickle.dump(results, fl, pickle.HIGHEST_PROTOCOL)
+"""
+
+
+            y = [results[(f,a)] for f in frames ]
 
         
         plt.subplot(a+1,1,i)
@@ -91,6 +97,6 @@ def runTests(*params):
     result_plots.show()
 #    print(" Best coherence with: \n frames: ", best[0], "\n alpha: ", best[1] ,"\n coherency on xValidation set: ", results[best][1],
 #                  "\n coherency on testset: ", evalu.frame_coherency(model, tstData) )
-
+"""
 
 runTests()
