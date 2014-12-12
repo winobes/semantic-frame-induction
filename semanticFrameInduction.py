@@ -53,8 +53,8 @@ def runTests(*params):
         frames = params[0]
         alphas = params[1]
     else:
-        frames = [10,15,20,25,30,35,40,45,50,55]#, 45, 55, 70 ]#10*(n+1) for n in range(100)]
-        alphas = [0.2,0.3]# , 1.7 ]#1+0.1*n for n in range(11)]
+        frames = [60,65,70,75,80,85,90,95,100]#, 45, 55, 70 ]#10*(n+1) for n in range(100)]
+        alphas = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3]# , 1.7 ]#1+0.1*n for n in range(11)]
 
     print("\n ==================================\n Running tests with: \n frames:\t", frames, "\n alpha's:\t ", alphas, "\n")
 
@@ -80,8 +80,14 @@ def runTests(*params):
                 best = (f,a)
             results[(f,a)] = res
 
-    with open('results/1stFrms_0203alph.pkl', 'wb') as fl:
+    with open('results/2ndFrms_01-13alph.pkl', 'wb') as fl:
         pickle.dump(results, fl, pickle.HIGHEST_PROTOCOL)
+
+
+def show_results():
+
+    results =get_result_table()
+
 """
 
 with open('obj/' + name + '.pkl', 'rb') as f:
@@ -101,5 +107,23 @@ with open('obj/' + name + '.pkl', 'rb') as f:
 #    print(" Best coherence with: \n frames: ", best[0], "\n alpha: ", best[1] ,"\n coherency on xValidation set: ", results[best][1],
 #                  "\n coherency on testset: ", evalu.frame_coherency(model, tstData) )
 """
+
+def get_result_table():
+
+    files = []
+    files.append('1stFrms_0203alph')
+    files.append('1stFrms_0405alph')
+    files.append('1stFrms_067809alph')
+    files.append('1stFrms_10111213alph')
+    files.append('1stFrms_14-2alph')
+    files.append('2ndFrms_14-2alph')
+
+    results = {}
+    for f in files:
+        with open('results/'+ fl + '.pkl', 'rb') as f:
+            results.update(pickle.load(f))
+    
+    return results 
+    
 
 runTests()
