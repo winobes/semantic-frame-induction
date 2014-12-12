@@ -3,6 +3,7 @@ import evaluation as evalu
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+import collections
 
 args = ('v','s','o')
 
@@ -86,27 +87,33 @@ def runTests(*params):
 
 def show_results():
 
-    results =get_result_table()
+    results = get_result_table()
+    srtRes = collections.OrderedDict(sorted(results.items()))
+    [frames,alphas] = [list(t) for t in zip(*srtRes)]
+ 
+    result_plots = plt.figure()
 
-"""
-
-with open('obj/' + name + '.pkl', 'rb') as f:
-        return pickle.load(f)
-
-            y = [results[(f,a)] for f in frames ]
-
-        
-        plt.subplot(a+1,1,i)
-        plt.plot(frames,y,marker='o', linestyle='--')
+    for a in alphas:
+        y = [results[(f,a)] for f in frames]
+        plt.subplot(2,1,1)
+        plt.plot(frames,y, label=str('alpha=%f'%a))
         plt.ylabel('coherency')
-        plt.xlabel('frames, with alpha=%f' %a)
-        i += 1
+        plt.xlabel('frames')
+        plt.legend(loc=3)
 
-    result_plots.tight_layout()
+    for f in frames:
+        y = [results[(f,a)] for a in alphas]
+        plt.subplot(2,1,2)
+        plt.plot(alphas,y, label=str('frames=%d'%f))
+        plt.ylabel('coherency')
+        plt.xlabel('alphas')
+        plt.legend(loc=3)
+
     result_plots.show()
+
+
 #    print(" Best coherence with: \n frames: ", best[0], "\n alpha: ", best[1] ,"\n coherency on xValidation set: ", results[best][1],
 #                  "\n coherency on testset: ", evalu.frame_coherency(model, tstData) )
-"""
 
 def get_result_table():
 
@@ -116,14 +123,14 @@ def get_result_table():
     files.append('1stFrms_067809alph')
     files.append('1stFrms_10111213alph')
     files.append('1stFrms_14-2alph')
-    files.append('2ndFrms_14-2alph')
+    #files.append('2ndFrms_14-2alph')
 
     results = {}
-    for f in files:
+    for fl in files:
         with open('results/'+ fl + '.pkl', 'rb') as f:
             results.update(pickle.load(f))
     
     return results 
     
 
-runTests()
+#runTests()
