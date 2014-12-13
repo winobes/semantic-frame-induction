@@ -1,7 +1,16 @@
 # TODO
 
 * Paper
+    * Introduction/background
+    * Related work
+    * Models we tried / derivations?
+    * Results
+    * Discussion
+    * Conclusion
 * Presentation
+    * ~~what are frames example~~ 
+    * model slides
+    * evaluation
 * Implementation
     * ~~Model 0 (EM)~~
     * Adapted Model 1 (Gibbs)
