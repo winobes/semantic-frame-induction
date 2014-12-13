@@ -24,7 +24,7 @@ def loadData( dataFile , trainPC, xvalidPC, testPC):
     nXval = 0
     nTst = 0
     
-    # Load the 
+
     
     with open( dataFile) as f:
         for v,s,o,c in map(lambda x: x.split(' ')[:-1], f.read().splitlines()):
