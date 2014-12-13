@@ -1,11 +1,21 @@
-import numpy as np
 import random
+from itertools import accumulate
 
-def normalize(array):
-    min_val = array.min()
+def normalize(dist):
+    min_val = min(dist) 
     if min_val < 0:
-        array -= min_val 
-    return array / sum(array)
+        dist = [x - min_val for x in dist]
+        #dist -= min_val 
+    normalizer = sum(dist)
+    return [x/normalizer for x in dist]
+
+
+def choose_from_dist(dist):
+    cumulative = list(accumulate(dist))
+    val = random.random()
+    for i in range(len(dist)):
+        if val < cumulative[i]:
+            return i
 
 def gibbs(F, alpha, beta, dataFile):
 
@@ -69,8 +79,7 @@ def gibbs(F, alpha, beta, dataFile):
 
     t = 0
     while True:
-        #print('t =',t,end='\r')
-        print('.')
+        print('t =',t,end='\r')
         t += 1 # #iteration
         for v in data: # iterate through documents (verbs) 
             for (s,o) in data[v]: # iterate through sentences
@@ -83,9 +92,10 @@ def gibbs(F, alpha, beta, dataFile):
                 frame_count_w[f][o] -= c
                 doc_frame_count[v][f] -= c
                 # calculate the posterior for frames
-                dist = normalize(np.array([posterior(f, v,s,o) for f in range(F)]))
+                dist = normalize([posterior(f, v,s,o) for f in range(F)])
                 # assign a new label to the sentence
-                f = np.random.choice(range(F), p=dist)
+                #f = np.random.choice(range(F), p=dist)
+                f = choose_from_dist(dist)
                 # modify counts to reflect (v,s,o)'s new frame
                 frame_count[f] += c
                 frame_count_v[f][v] += c
