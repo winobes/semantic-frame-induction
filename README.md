@@ -5,6 +5,10 @@
 * Implementation
     * ~~Model 0 (EM)~~
     * Adapted Model 1 (Gibbs)
+        * ~~derive Gibbs~~
+        * ~~implement~~
+        * optimize if possible
+        * fix the in/out for consistency with EM
 * Results
     * DiceSim with framenet
     * ~~Frame coherency~~
