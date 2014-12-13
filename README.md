@@ -1,12 +1,26 @@
+# TODO
+
+* Paper
+* Presentation
+* Implementation
+    * ~~Model 0 (EM)~~
+    * Adapted Model 1 (Gibbs)
+* Results
+    * DiceSim with framenet
+    * ~~Frame coherency~~
+    * compare performance per verb categories
+    
 # Plan!
 
 ## Stage 1
 
 - Derive EM for model 0 (as in the Rooth paper)
-- ~~Get the data ready for this (verbargs from google n-gram)~~
-- ~~implement the EM~~
+- Get the data ready for this (verbargs from google n-gram)
+- implement the EM
 - testing our implementation
     - use some measures (e.g. DiceSim to framenet)
+        * frame coherency
+        * DiceSim to framenet
     - maybe try to find Gold Standard data
     - compare to other semantic frame induction (Ivan's, CMU?)
     - find areas of improvement
