@@ -17,7 +17,7 @@ def choose_from_dist(dist):
         if val < cumulative[i]:
             return i
 
-def gibbs(F, alpha, beta, dataFile):
+def gibbs(F, alpha, beta, T, dataFile):
 
     data = {} # doc -> list of sentences
     sentence_count = {} # (v,s,o) -> # of observations 
@@ -68,17 +68,21 @@ def gibbs(F, alpha, beta, dataFile):
             frame_count_w[f][o] += c
             doc_frame_count[v][f] += c
 
+    # Calculates the probablitiy that (v,s,o) should be assigned frame f
+    # given the current counts.
     def posterior(f, v,s,o):
+        # how well the verb fits the frame
         v_term  = ( (beta + frame_count_v[f][v]) 
                   / (V_count + frame_count[f]) )
+        # how well the subject & object fit the frame
         so_term = ( (2*beta + frame_count_w[f][s] + frame_count_w[f][o]) 
                   / (W_count + frame_count[f]) )
+        # how likely the frame is in the document (verb) 
         f_term  = ( (alpha + doc_frame_count[v][f])
                   / (F*alpha + sentence_count[(v,s,o)]) )
         return v_term * so_term * f_term
 
-    t = 0
-    while True:
+    for t in range(T):
         print('t =',t,end='\r')
         t += 1 # #iteration
         for v in data: # iterate through documents (verbs) 
@@ -102,9 +106,5 @@ def gibbs(F, alpha, beta, dataFile):
                 frame_count_w[f][s] += c
                 frame_count_w[f][o] += c
                 doc_frame_count[v][f] += c
-        if t == 10: 
-            break
+
     return frame_assign
-
-gibbs(5, .5, .5, 'Preprocessing/all_VSOs.sorted.concat')
-
