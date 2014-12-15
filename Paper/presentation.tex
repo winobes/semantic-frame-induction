@@ -76,51 +76,30 @@ University of Amsterdam \\ % Your institution for the title page
 \end{frame}
 
 \section{Models}
+
 \begin{frame}
   \frametitle{Model 0 - EM }
-  \begin{tikzpicture}
-    % Nodes
-    \node[obs] (datapoint) {$w_v,w_s,w_o$} ; %
-    \node[latent, above=of datapoint] (F) {$f$} ; %
-    \node[latent, left=of F] (theta) {$\theta$}; %
-    \node[latent, right=of datapoint] (phi) {$\varphi_v,\varphi_s,\varphi_o$}; %
-    \edge {theta} {F} ; %
-    \edge {F} {datapoint}
-    \edge {phi} {datapoint} ; %
-    \plate {tuples} { (datapoint) } {$N$}; %
-    \plate {} { (tuples) (F) (phi)} {$F$} ; %
-  \end{tikzpicture}
-\begin{tabbing}
-  $N$ \hspace{64pt}\= number of data points\\
-  $F$\> number of frames\\
-  $\theta$\> distribution over frames\\
-  $\varphi_a$ \> distribution per argument $a$ (for frame $f$)\\
-  $w_v,w_s,w_o$\> datapoint (verb, subject, object)\\
-\end{tabbing}
+  \begin{figure}
+  \input{model0plate.tex}
+  \end{figure}
+  \begin{tabbing}
+    $N$ \hspace{64pt}\= number of data points\\
+    $F$\> number of frames\\
+    $\theta$\> distribution over frames\\
+    $\varphi_a$ \> distribution per argument $a$ (for frame $f$)\\
+    $w_v,w_s,w_o$\> datapoint (verb, subject, object)\\
+  \end{tabbing}
 \end{frame}
 
-\section{Model 1}
 \begin{frame}
 \frametitle{Model 1 - Gibbs Sampling}
 \begin{figure}
-\begin{tikzpicture}[]
-    \node[obs]                   (w)     {$(w_s,w_o)^v_i$}; %
-    \node[latent, left=of w]     (f)     {$f^v$};
-    \node[latent, left=of f]     (theta) {$\theta^v$};
-    \node[latent, left=of theta] (alpha) {$\alpha$};
-    \node[latent, right=of w]    (phi)   {$(\phi_s,\phi_o)^f$};
-    \edge {alpha} {theta};
-    \edge {theta} {f};
-    \edge {f} {w};
-    \edge {phi} {w};
-    \plate {frames} {(phi)} {$F$};
-    \plate {datapoints} {(f) (w)} {$N^v$};
-    \plate {verbs} {(f) (w) (datapoints) (theta)} {$V$};
-\end{tikzpicture}
+\input{model1plate.tex}
 \end{figure}
 \end{frame}
 
 \section{Results}
+
 \begin{frame}
   \frametitle{Evaluation metrics}
   \begin{itemize}

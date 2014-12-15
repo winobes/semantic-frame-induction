@@ -9,7 +9,13 @@
     * Conclusion
 * Presentation
     * ~~what are frames example~~ 
-    * model slides
+    * model 0 slides
+        * plate diagram
+        * E and M steps
+    * model 1 slides
+        * plate diagram
+        * Gibbs derivation
+    * data (google n-grams)
     * evaluation
 * Implementation
     * ~~Model 0 (EM)~~

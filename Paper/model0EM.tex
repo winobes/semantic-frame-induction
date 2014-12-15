@@ -1,10 +1,13 @@
 \documentclass{article}
 \usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{bayesnet}
 \begin{document}
 \def\blw{\boldsymbol{w}}
 \def\blf{\boldsymbol{f}}
 \def\blphi{\boldsymbol{\phi}}
 \renewcommand\phi\varphi
+
 
 \textbf{Notation:}
 \begin{table}[h]
@@ -27,6 +30,9 @@ $C(w,f,a)$          & number of times that $w$ appears in position $a$ in triple
 ($V^{(s)},V^{(v)},V^{(o)}$)... for now lump them all together and make use of 0 counts.}
 
 The generative story for model 0 is
+
+\input{model0plate.tex}
+
 \[
 P(\blf,\blw,\blphi|\theta,\beta)
 = P(\blf|\theta)P(\blw|\blphi)P(\blphi|\beta)
