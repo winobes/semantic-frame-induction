@@ -51,13 +51,19 @@ University of Amsterdam \\ % Your institution for the title page
 %----------------------------------------------------------------------------------------
 
 %------------------------------------------------
-\section{Semantic frames}
+\section{Semantic Frames}
 %------------------------------------------------
 
 
 \begin{frame}
-  \frametitle{Semantic frames}
-  An example\\
+  \frametitle{Semantic Frames}
+  \begin{itemize}
+  \item Frame semantics -- Charles J. Fillmore (1976).
+  \item A semantic frame is ``a description of a type of event, relation, 
+  or entity and the participants in it.'' (Framenet)
+  \item There is no mapping between frames and verbs.
+  \end{itemize}
+  An example:\\
   \vspace{10pt}
 \begin{tabular}{|l|}
   \hline
@@ -77,6 +83,18 @@ University of Amsterdam \\ % Your institution for the title page
 \end{frame}
 
 \section{Models}
+
+\begin{frame}
+  \frametitle{Google Syntactic-Ngrams}
+  \begin{itemize}
+  \item A syntactic-ngram is a $k$-word rooted subtree for some sentence. 
+  \item Google ngrams come from a corpus of 3.5 million English books.
+  \item We trimmed the ``verb args'' dataset to consider only subject-verb-object triples (VSO's).
+  \item The dataset contains 1,629,120 unique VSO's with a total of 96,245,401 by count.
+  \item In our final results we may only use the most common \%20 of these...
+  \end{itemize}
+
+\end{frame}
 
 \begin{frame}
   \frametitle{Model 0 - EM }
