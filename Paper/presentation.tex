@@ -2,6 +2,7 @@
 
 \usepackage{natbib}
 \bibliographystyle{plain}
+\renewcommand\phi\varphi
 
 
 \mode<presentation> {
@@ -79,23 +80,77 @@ University of Amsterdam \\ % Your institution for the title page
 
 \begin{frame}
   \frametitle{Model 0 - EM }
-  \begin{figure}
-  \input{model0plate.tex}
-  \end{figure}
+  \begin{columns}
+  \column{.5\textwidth}
+    \begin{figure}
+    \input{model0plate.tex}
+    \end{figure}
+  \column{.5\textwidth} 
+  \begin{scriptsize}
   \begin{tabbing}
-    $N$ \hspace{64pt}\= number of data points\\
-    $F$\> number of frames\\
-    $\theta$\> distribution over frames\\
-    $\varphi_a$ \> distribution per argument $a$ (for frame $f$)\\
-    $w_v,w_s,w_o$\> datapoint (verb, subject, object)\\
+    $N$ \hspace{10pt}\= number of data points\\
+    $F$              \> number of frames\\
+    $\theta$         \> distribution over frames\\
+    $\varphi_a$      \> distributions (for each frame) over \\ 
+                     \> vocabulary of argument $a$\\
+    $w_a$            \> datapoint (verb, subject, object)\\
   \end{tabbing}
+  \end{scriptsize}
+  \end{columns}
+\footnotesize{E-Step:}
+\[
+P(f|w_i) = \frac{\prod_a^{\{v,s,o\}}P(w_i^a|\phi_f^a) P(f|\theta)}{\sum_{f'}^F\prod_a^{\{v,s,o\}}P(w_i^a|\phi_{f'}^a)}
+\]
+\footnotesize{M-Step:}
+\begin{columns}
+\column{.5\textwidth}
+\[
+P(f|\theta) = \frac{\sum_{i=1}^N \mu_i(f)}{\sum_{f'=1}^F\sum_{i=1}^N\mu_i(f')}
+\]
+\column{.5\textwidth}
+\[
+P(w|\phi_f^a) = \frac{\sum_{i=1}^N \mu_i(f) C(w,a)}{\sum_{w'=1}^{V^a}\sum_{i=1}^N \mu_i(f) C(w',a)}
+\]
+\end{columns}
 \end{frame}
 
 \begin{frame}
-\frametitle{Model 1 - Gibbs Sampling}
-\begin{figure}
-\input{model1plate.tex}
-\end{figure}
+  \begin{columns}
+  \column{.5\textwidth}
+  \frametitle{Model 1 - Gibbs Sampling}
+  \begin{figure}
+  \input{model1plate.tex}
+  \end{figure}
+  \column{.5\textwidth}
+  \begin{scriptsize}
+  \begin{tabbing}
+    $N$ \hspace{10pt}\= number of data points\\
+    $F$              \> number of frames\\
+    $V$              \> number of documents (= verb vocabulary)\\
+    $\theta$         \> distribution over frames\\
+    $\varphi_a$      \> distributions (for each frame) over \\ 
+                     \> vocabulary of argument $a$\\
+    $w_a$            \> datapoint (verb, subject, object)\\
+    $\beta$          \> hyperprior for $\varphi$ (for each argument)\\
+    $\alpha$         \> hyperprior for $\theta$ \\
+  \end{tabbing}
+  \end{scriptsize}
+  \end{columns}
+\footnotesize{Gibbs:}
+\[
+P(z_{ij} = f| \mathbf{f}_{-ij},\alpha,\beta,w)
+\propto \prod_a^{\{v,s,o\}}\frac{\beta^a + \tilde{C}(f,w_{ij})}{V^a + \tilde{C}(f)}
+        \cdot \frac{\alpha + \tilde{C}(i,f)}{F\alpha+\tilde{C}(i)}
+\]
+\begin{scriptsize}
+  \begin{tabbing}
+    $\tilde{C}(f,w_{ij})$ \hspace{10pt}\= count times $w_{ij}$ is assigned to frame $f$\\
+    $\tilde{C}(f)$                     \> count total data points assigend to $f$\\
+    $\tilde{C}(i,f)$                   \> count sentences in document $i$ assigned to $f$\\
+    $\tilde{C}(i)$                     \> count sentences in document $i$\\ 
+  \end{tabbing}
+  \end{scriptsize}
+
 \end{frame}
 
 \section{Results}

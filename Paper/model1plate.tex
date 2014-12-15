@@ -1,10 +1,10 @@
 \begin{tikzpicture}[]
     \node[obs]                   (w)     {$w_s,w_o$}; %
-    \node[latent, above=of w]     (f)     {$f$};
-    \node[latent, left=of f]     (theta) {$\theta$};
-    \node[latent, left=of theta] (alpha) {$\alpha$};
+    \node[latent, above=0.5cm of w]     (f)     {$f$};
+    \node[latent, left=0.5cm of f]     (theta) {$\theta$};
+    \node[latent, left=0.5cm of theta] (alpha) {$\alpha$};
     \node[latent, right=of w]    (phi)   {$\varphi_v,\varphi_s,\varphi_o$};
-    \node[latent, above=of phi] (beta) {$\beta$};
+    \node[latent, above=0.5cm of phi] (beta) {$\beta$};
     \edge {alpha} {theta};
     \edge {theta} {f};
     \edge {f} {w};
