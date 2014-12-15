@@ -4,8 +4,67 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import collections
+import os
+from probfuncs import normalize, cumulative, cum_dist_choice
 
 args = ('v','s','o')
+
+def pruneData( dataFile, verbPC):
+    V = {}
+    data = {}
+    with open(dataFile) as f:
+        # build the verb vocabulary
+        for v,s,o,c in map(lambda x: x.split(' ')[:-1], f.read().splitlines()):
+            c = int(c)
+            if v in V:
+                V[v] += c
+            else: 
+                V[v] = c
+            if (v,s,o) in data:
+                data[(v,s,o)] += c
+            else:
+                data[(v,s,o)] = c
+
+    # determine the cutoff 
+    counts = list(V.values())
+    counts.sort(reverse=True)
+    cutoff = counts[int(len(counts) * verbPC/100)]
+    # pop off the data with low counts
+    for (v,s,o) in data.copy():
+        if V[v] < cutoff:
+            data.pop((v,s,o))
+
+    pickle.dump((verbPC, data), open("allData.pkl", 'wb'))
+
+def splitData( dataFile, verbPC, testPC):
+
+    # load up all the data
+    if not os.path.isfile("allData.pkl"):
+        pruneData(dataFile, verbPC)
+    checkVerbPC, data = pickle.load(open("allData.pkl", 'rb'))
+    if not (checkVerbPC == verbPC):
+        raise ValueError ("Verb frequency cutoffs do not match. Re/move allData.pkl and try again.")
+
+    dataList = [s for s in data]
+    testData = {}
+    for i in range(int(len(data) * testPC/100)): 
+        # create a distribution to sample from
+        countList = [data[s] for s in dataList]
+        dist = cumulative(normalize(countList))
+        # sample the test data subtract it from the training data
+        vso = dataList[cum_dist_choice(dist)]
+        if vso in testData:
+            testData[vso] += 1
+        else:
+            testData[vso] = 1
+        if data[vso] == 1:
+            data.pop(vso)
+            dataList.remove(vso)
+        else: 
+            data[vso] -= 1
+
+    pickle.dump(data, open("trainingData.pkl", 'wb'))
+    pickle.ump(testData, open("testingData.pkl", 'wb'))
 
 
 def loadData( dataFile , trainPC, xvalidPC, testPC):

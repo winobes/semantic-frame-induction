@@ -2,7 +2,7 @@ import numpy as np
 
 args = ('v','s','o')
 
-def em(F, alpha, counts, word_to_index, index_to_word, V, data):
+def em(F, alpha, data):
     """
     Uses EM to induce frames via the model 0 generative story.
 
@@ -33,6 +33,18 @@ def em(F, alpha, counts, word_to_index, index_to_word, V, data):
     frame_assign  - a map from data points (string triples) to frame indetifiers (integers)
     theta         - (as above)
     """
+
+
+    ############ TODO
+    inData = list(data.keys)
+    inCounts = [data[vso] for vso in data]
+
+    data = {a:arra}
+    for (v,s,o) in inData:
+        data
+counts, word_to_index, index_to_word, V, 
+    ###################3
+
 
     N = len(data['v'])
     #print(" *** in mod0: data len: ", N)
