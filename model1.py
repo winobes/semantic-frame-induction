@@ -22,7 +22,6 @@ def gibbs(F, alpha, beta, T, dataFile):
     data = {} # doc -> list of sentences
     sentence_count = {} # (v,s,o) -> # of observations 
     doc_count = {} # doc (verb) -> # of sentences in it 
-    doc_frame_count = {} # doc -> frame -> # of sentences in doc assigned to frame
     frame_assign = {} # (v,s,o) -> frame assignment 
     frame_count = {} # frame -> # of sentences assigned to it
     frame_count_v = {} # frame -> verb -> # of verb assigned to frame
@@ -56,7 +55,6 @@ def gibbs(F, alpha, beta, T, dataFile):
     frame_count_v = {f: {v: 0 for v in V} for f in range(F)}
     frame_count_w = {f: {w: 0 for w in W} for f in range(F)}
     for v in data:
-        doc_frame_count[v] = {f: 0 for f in range(F)}
         frame_count_v[v] = 0
         for (s,o) in data[v]:
             f = random.randrange(F)
@@ -66,7 +64,6 @@ def gibbs(F, alpha, beta, T, dataFile):
             frame_count_v[f][v] += c
             frame_count_w[f][s] += c
             frame_count_w[f][o] += c
-            doc_frame_count[v][f] += c
 
     # Calculates the probablitiy that (v,s,o) should be assigned frame f
     # given the current counts.
@@ -78,7 +75,7 @@ def gibbs(F, alpha, beta, T, dataFile):
         so_term = ( (2*beta + frame_count_w[f][s] + frame_count_w[f][o]) 
                   / (W_count + frame_count[f]) )
         # how likely the frame is in the document (verb) 
-        f_term  = ( (alpha + doc_frame_count[v][f])
+        f_term  = ( (alpha + frame_count_v[f][v])
                   / (F*alpha + sentence_count[(v,s,o)]) )
         return v_term * so_term * f_term
 
@@ -94,7 +91,6 @@ def gibbs(F, alpha, beta, T, dataFile):
                 frame_count_v[f][v] -= c
                 frame_count_w[f][s] -= c
                 frame_count_w[f][o] -= c
-                doc_frame_count[v][f] -= c
                 # calculate the posterior for frames
                 dist = normalize([posterior(f, v,s,o) for f in range(F)])
                 # assign a new label to the sentence
@@ -105,6 +101,5 @@ def gibbs(F, alpha, beta, T, dataFile):
                 frame_count_v[f][v] += c
                 frame_count_w[f][s] += c
                 frame_count_w[f][o] += c
-                doc_frame_count[v][f] += c
 
     return frame_assign
