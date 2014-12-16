@@ -95,7 +95,7 @@ def gibbs(F, alpha, beta, T, dataFile):
 
 # questionable.
 def construct_frame_dists(frame_assign, F, counts):
-    totals_in_frame{f: {a: 0 for a in args} for f in range(F)}
+    totals_in_frame = {f: {a: 0 for a in args} for f in range(F)}
     frame_dists = {f: {a: {} for a in args} for f in range(F)}
     for ((v,s,o), f) in frame_assign.items():
         for (a,w) in zip(args, (v,s,o)):
