@@ -41,7 +41,7 @@ def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', verbPC=20):
 
 def splitData( dataFile='allData.pkl', testPC=10):
 
-    print('Splitting off %', testPC, '...')
+    print('Splitting off %', testPC, ' for training data...')
 
     # load up all the data
     if not os.path.isfile(dataFile):
@@ -58,9 +58,9 @@ def splitData( dataFile='allData.pkl', testPC=10):
     testData = {}
     while testDataList:
         vso = testDataList.pop()
+        data[vso] -= 1
         if vso in testData:
             testData[vso] += 1
-            data[vso] -= 1
             if data[vso] == 0:
                 data.pop(vso)
         else: 
@@ -196,5 +196,8 @@ def get_result_table():
     
 
 #runTests()
+
 pruneData()
 splitData()
+
+#mod0.em(20, 1.5, pickle.load(open('trainingData.pkl', 'rb')))
