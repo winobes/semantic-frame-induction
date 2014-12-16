@@ -1,6 +1,8 @@
 import random
 from probfuncs import normalize, cumulative, cum_dist_choice
 
+args = ('v', 's', 'o')
+
 def gibbs(F, alpha, beta, T, inData):
 
     data = {} # doc -> list of sentences
@@ -57,7 +59,7 @@ def gibbs(F, alpha, beta, T, inData):
         return v_term * so_term * f_term
 
     for t in range(T):
-        print('t =',t,end='\r')
+        print('t =',t,'of',T,end='\r')
         t += 1 # #iteration
         for v in data: # iterate through documents (verbs) 
             for (s,o) in data[v]: # iterate through sentences
@@ -71,7 +73,6 @@ def gibbs(F, alpha, beta, T, inData):
                 # calculate the posterior for frames
                 dist = cumulative(normalize([posterior(f, v,s,o) for f in range(F)]))
                 # assign a new label to the sentence
-                #f = np.random.choice(range(F), p=dist)
                 f = cum_dist_choice(dist)
                 # modify counts to reflect (v,s,o)'s new frame
                 frame_count[f] += c
