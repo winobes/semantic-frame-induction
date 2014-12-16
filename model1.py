@@ -25,7 +25,7 @@ def gibbs(F, alpha, beta, T, dataFile):
     frame_assign = {} # (v,s,o) -> frame assignment 
     frame_count = {} # frame -> # of sentences assigned to it
     frame_count_v = {} # frame -> verb -> # of verb assigned to frame
-    frame_count_w = {} # frame -> word -> # of words assigned to frame
+    frame_count_w = {} # frame -> word -> # of subjects/verbs assigned to frame
     W = set() # number of words (subject + verbs)
     V = set() # number of verbs (documents)
 
@@ -102,4 +102,20 @@ def gibbs(F, alpha, beta, T, dataFile):
                 frame_count_w[f][s] += c
                 frame_count_w[f][o] += c
 
-    return frame_assign
+    # infer the frame prior from assignments
+    theta = normalize([frame_count[f] for f in range(F)])
+    # infer frame's argument distributons from assignments
+    frame_dists = construct_frame_dists(frame_assign, F, sentence_count)
+
+    return (frame_dists, frame_assign, theta)
+
+# questionable.
+def construct_frame_dists(frame_assign, F, counts):
+    totals_in_frame{f: {a: 0 for a in args} for f in range(F)}
+    frame_dists = {f: {a: {} for a in args} for f in range(F)}
+    for ((v,s,o), f) in frame_assign.items():
+        for (a,w) in zip(args, (v,s,o)):
+            if w in frame_dists[f][a]:
+                frame_dists[f][a][w] += counts[(v,s,o)]
+            else:
+                frame_dists[f][a][w] = counts[(v,s,o)]
