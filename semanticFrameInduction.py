@@ -2,10 +2,12 @@ import model0 as mod0
 import evaluation as evalu
 import numpy as np
 import matplotlib.pyplot as plt
+import random as rnd
 import pickle
 import collections
 import os
 from probfuncs import weighted_sample
+import itertools
 
 args = ('v','s','o')
 
@@ -45,35 +47,33 @@ def splitData( dataFile='allData.pkl', testPC=10, xvPC=20):
     if not os.path.isfile(dataFile):
         raise ValueError ("must run pruneData first.")
     data = pickle.load(open(dataFile, 'rb'))
-    trainingData = data.copy()
+ 
+    # put it all in a big long list and shuffle
+    dataList = list(itertools.chain(*([vso for i in range(data[vso])] for vso in data)))
+    rnd.shuffle(dataList)
 
-    # make a weighted sample of data
-    dataList = [s for s in data]
-    weights = [data[s] for s in dataList]
+    print("Splitting off %", testPC, "for testing data and %", xvPC, "for cross verb data...")
+    # split accordingly
+    N = len(dataList)
+    split1 = int(N*testPC/100)
+    split2 = split1 + int(N*xvPC/100)
+    print("Total of ", N, "items. 0 to", split1, "to testList,", split1, "to", split2, "to xvList.")
+    testList       = dataList[:split1]
+    xvList         = dataList[split1:split2]
+    trainingList   = dataList[split2:]
 
-    # genenic function for generating the samples from w/o replacement
-    def sample_from_data(PC): 
-        size = int(len(data) * PC/100) 
-        sampleList = weighted_sample(dataList, weights, size)
-
-        # put the sample in a good format and adjust the data counts
-        sampleData = {}
-        while sampleList:
-            vso = sampleList.pop()
-            trainingData[vso] -= 1
-            if vso in sampleData: 
-                sampleData[vso] += 1
-                if trainingData[vso] == 0:
-                    trainingData.pop(vso)
-            else: 
-                sampleData[vso] = 1
-        return sampleData
-
-    # generate both samples
-    print('Splitting off %', testPC, ' for training data...')
-    testData = sample_from_data(testPC)
-    print('Splitting off %', xvPC, ' for cross verb data...')
-    xvData   = sample_from_data(xvPC)
+    # make the lists into multisets
+    def to_multiset(bigList):
+        multiset = {}
+        for item in bigList:
+            if item in multiset:
+                multiset[item] += 1
+            else:
+                multiset[item] = 1
+        return multiset
+    trainingData = to_multiset(trainingList)
+    testData = to_multiset(testList)
+    xvData = to_multiset(xvList)
 
     # check that we didn't make any mistakes...
     def merge_counts(d1, d2):
@@ -87,7 +87,7 @@ def splitData( dataFile='allData.pkl', testPC=10, xvPC=20):
     assert data == merge_counts(trainingData, merge_counts(testData, xvData))
 
     # dump it!
-    pickle.dump(data, open("trainingData.pkl", 'wb'))
+    pickle.dump(trainingData, open("trainingData.pkl", 'wb'))
     pickle.dump(testData, open("testingData.pkl", 'wb'))
     pickle.dump(xvData, open("xvData.pkl", 'wb'))
 
@@ -178,7 +178,7 @@ def get_result_table():
     return results 
     
 
-#pruneData()
-#splitData()
+pruneData()
+splitData()
 #runTests()
 
