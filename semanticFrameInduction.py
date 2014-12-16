@@ -178,7 +178,7 @@ def get_result_table():
     return results 
     
 
-pruneData()
-splitData()
+#pruneData()
+#splitData()
 #runTests()
 
