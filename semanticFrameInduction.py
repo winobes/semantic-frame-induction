@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 import pickle
 import collections
 import os
-from probfuncs import normalize, cumulative, cum_dist_choice
+from probfuncs import weighted_sample
 
 args = ('v','s','o')
 
-def pruneData( dataFile, verbPC):
+def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', verbPC=20):
+    print('Pruning to %', verbPC, '... ', end='')
     V = {}
     data = {}
     with open(dataFile) as f:
@@ -29,42 +30,44 @@ def pruneData( dataFile, verbPC):
     counts = list(V.values())
     counts.sort(reverse=True)
     cutoff = counts[int(len(counts) * verbPC/100)]
+    print("The cutoff for verb frequency will be", cutoff)
     # pop off the data with low counts
     for (v,s,o) in data.copy():
         if V[v] < cutoff:
             data.pop((v,s,o))
 
-    pickle.dump((verbPC, data), open("allData.pkl", 'wb'))
+    pickle.dump(data, open("allData.pkl", 'wb'))
+    print('Done.')
 
-def splitData( dataFile, verbPC, testPC):
+def splitData( dataFile='allData.pkl', testPC=10):
+
+    print('Splitting off %', testPC, '...')
 
     # load up all the data
-    if not os.path.isfile("allData.pkl"):
-        pruneData(dataFile, verbPC)
-    checkVerbPC, data = pickle.load(open("allData.pkl", 'rb'))
-    if not (checkVerbPC == verbPC):
-        raise ValueError ("Verb frequency cutoffs do not match. Re/move allData.pkl and try again.")
+    if not os.path.isfile(dataFile):
+        raise ValueError ("must run pruneData first.")
+    data = pickle.load(open(dataFile, 'rb'))
 
+    # make a weighted sample of data
     dataList = [s for s in data]
+    weights = [data[s] for s in dataList]
+    testSize = int(len(data) * testPC/100) 
+    testDataList = weighted_sample(dataList, weights, testSize)
+
+    # put the sample in a good format and adjust the training data counts
     testData = {}
-    for i in range(int(len(data) * testPC/100)): 
-        # create a distribution to sample from
-        countList = [data[s] for s in dataList]
-        dist = cumulative(normalize(countList))
-        # sample the test data subtract it from the training data
-        vso = dataList[cum_dist_choice(dist)]
+    while testDataList:
+        vso = testDataList.pop()
         if vso in testData:
             testData[vso] += 1
-        else:
-            testData[vso] = 1
-        if data[vso] == 1:
-            data.pop(vso)
-            dataList.remove(vso)
-        else: 
             data[vso] -= 1
+            if data[vso] == 0:
+                data.pop(vso)
+        else: 
+            testData[vso] = 1
 
     pickle.dump(data, open("trainingData.pkl", 'wb'))
-    pickle.ump(testData, open("testingData.pkl", 'wb'))
+    pickle.dump(testData, open("testingData.pkl", 'wb'))
 
 
 def loadData( dataFile , trainPC, xvalidPC, testPC):
@@ -193,3 +196,5 @@ def get_result_table():
     
 
 #runTests()
+pruneData()
+splitData()

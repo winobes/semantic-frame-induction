@@ -36,13 +36,13 @@ def em(F, alpha, data):
 
 
     ############ TODO
-    inData = list(data.keys)
-    inCounts = [data[vso] for vso in data]
+    #inData = list(data.keys)
+    #inCounts = [data[vso] for vso in data]
 
-    data = {a:arra}
-    for (v,s,o) in inData:
-        data
-counts, word_to_index, index_to_word, V, 
+    #data = {a:arra}
+    #for (v,s,o) in inData:
+        #data
+#counts, word_to_index, index_to_word, V, 
     ###################3
 
 
