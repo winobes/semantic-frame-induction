@@ -1,10 +1,10 @@
 import random
 from probfuncs import normalize, cumulative, cum_dist_choice
 
-def gibbs(F, alpha, beta, T, dataFile):
+def gibbs(F, alpha, beta, T, inData):
 
     data = {} # doc -> list of sentences
-    sentence_count = {} # (v,s,o) -> # of observations 
+    sentence_count = inData # (v,s,o) -> # of observations 
     doc_count = {} # doc (verb) -> # of sentences in it 
     frame_assign = {} # (v,s,o) -> frame assignment 
     frame_count = {} # frame -> # of sentences assigned to it
@@ -13,23 +13,16 @@ def gibbs(F, alpha, beta, T, dataFile):
     W = set() # number of words (subject + verbs)
     V = set() # number of verbs (documents)
 
-    # read data from file; place in documents
-    with open(dataFile) as f:
-        for v,s,o,c in map(lambda x: x.split(' ')[:-1], f.read().splitlines()):
-            V.add(v)
-            W.add(s)
-            W.add(o)
-            c = int(c)
-            if v in data:
-                data[v].append((s,o))
-                doc_count[v] += c
-            else:
-                data[v] = [(s,o)]
-                doc_count[v] = c
-            if (v,s,o) in sentence_count:
-                sentence_count[(v,s,o)] += c
-            else:
-                sentence_count[(v,s,o)] = c
+    for ((v,s,o),c) in sentence_count.items():
+        V.add(v)
+        W.add(s)
+        W.add(o)
+        if v in data:
+            data[v].append((s,o))
+            doc_count[v] += c
+        else:
+            data[v] = [(s,o)]
+            doc_count[v] = c
 
     W_count = len(W)
     V_count = len(V)
