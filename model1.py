@@ -1,21 +1,5 @@
 import random
-from itertools import accumulate
-
-def normalize(dist):
-    min_val = min(dist) 
-    if min_val < 0:
-        dist = [x - min_val for x in dist]
-        #dist -= min_val 
-    normalizer = sum(dist)
-    return [x/normalizer for x in dist]
-
-
-def choose_from_dist(dist):
-    cumulative = list(accumulate(dist))
-    val = random.random()
-    for i in range(len(dist)):
-        if val < cumulative[i]:
-            return i
+from probfuncs import normalize, cumulative, cum_dist_choice
 
 def gibbs(F, alpha, beta, T, dataFile):
 
@@ -92,10 +76,10 @@ def gibbs(F, alpha, beta, T, dataFile):
                 frame_count_w[f][s] -= c
                 frame_count_w[f][o] -= c
                 # calculate the posterior for frames
-                dist = normalize([posterior(f, v,s,o) for f in range(F)])
+                dist = cumulative(normalize([posterior(f, v,s,o) for f in range(F)]))
                 # assign a new label to the sentence
                 #f = np.random.choice(range(F), p=dist)
-                f = choose_from_dist(dist)
+                f = cum_dist_choice(dist)
                 # modify counts to reflect (v,s,o)'s new frame
                 frame_count[f] += c
                 frame_count_v[f][v] += c

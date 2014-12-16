@@ -14,11 +14,12 @@ def frame_coherency(model, data):
     probs = []
     probsR = []
 
+    dataList = list(data.keys())
 
     
-    probs = [frame_dists[frame_assign[(v,s,o)]]['v'][v]*frame_dists[frame_assign[(v,s,o)]]['s'][s]*frame_dists[frame_assign[(v,s,o)]]['o'][o]*theta[frame_assign[(v,s,o)]] for(v,s,o,_) in data ]
-    
-    tstD = [(data[rnd.randint(0,N-1)][0],data[i][0],data[i][1],data[i][2]) for i in range(N) ]
+    probs = [frame_dists[frame_assign[(v,s,o)]]['v'][v]*frame_dists[frame_assign[(v,s,o)]]['s'][s]*frame_dists[frame_assign[(v,s,o)]]['o'][o]*theta[frame_assign[(v,s,o)]] for(v,s,o) in data ]
+   
+    tstD = [(rnd.choice(dataList)[0], vso[0], vso[1], vso[2]) for vso in data]
 
     for (rV,v,s,o) in tstD:
          if (rV,s,o) in frame_assign: #frame_assign.has_key():
@@ -32,9 +33,9 @@ def frame_coherency(model, data):
     
     
 
-    
     for i in range(N):
-        (_,_,_,c) = data[i]
+        (v,s,o) = dataList[i]
+        c = data[(v,s,o)]
         total += c
         if probs[i] > probsR[i]:
             coh += c
