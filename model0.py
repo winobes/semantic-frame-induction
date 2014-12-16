@@ -33,34 +33,24 @@ def em(F, alpha, inData):
     frame_assign  - a map from data points (string triples) to frame indetifiers (integers)
     theta         - (as above)
     """
+
+    # Put the data in the right format for EM
     data = {a: [] for a in args}
     counts = []
+    V =  {a: 0 for a in args}
     word_to_index = {a: {} for a in args}
     index_to_word = {a: {} for a in args}
-    V =  {a: 0 for a in args}
     for ws in inData:
-        for (a, w) in zip(args, w):
+        for (a, w) in zip(args, ws):
             if not w in word_to_index[a]:
-            data[a].append(w)
-            word_to_index[a][w] = i
-            index_to_word[a][i] = w
+                word_to_index[a][w] = V[a]
+                index_to_word[a][V[a]] = w
+                V[a] += 1
+            data[a].append(word_to_index[a][w])
         counts.append(inData[ws])
     data = {a:np.array(data[a]) for a in args}
+    N = len(counts)
 
-
-    ############ TODO
-    inData = list(data.keys)
-    inCounts = [data[vso] for vso in data]
-
-    data = {a:arra}
-    for (v,s,o) in inData:
-        data
-counts, word_to_index, index_to_word, V, 
-    ###################3
-
-
-    N = len(data['v'])
-    #print(" *** in mod0: data len: ", N)
     # Initialize theta to the uniform distribution.
     theta = np.ones(F) / F
     # Draw from a dirichlet distribution to randomly initialize each frame.
@@ -68,9 +58,8 @@ counts, word_to_index, index_to_word, V,
     # Create the array for storing posterior estimates.
     mu = np.zeros([N,F])
 
-    t = 0
+    t = 0 # iteration
     while True:
-        t += 1 # iteration
 
         # Check that all our distributions still sum to 1.
         assert(is_prob_dist(theta, .01))
@@ -78,8 +67,6 @@ counts, word_to_index, index_to_word, V,
 
         # E-step
         mu = phi['v'][data['v']] * phi['s'][data['s']] * phi['o'][data['o']] * theta
-        print(".",end="", flush=True)
-        #print_clustering(F, mu)
 
         # M-step
         theta_new = mu.sum(axis=0) / mu.sum()
@@ -91,13 +78,14 @@ counts, word_to_index, index_to_word, V,
         # Measure how much the distributions have changed from in the previous step.
         delta = (sum(abs(np.subtract(phi[a], phi_new[a])).sum() for a in args) +
                  abs(np.subtract(theta, theta_new)).sum())
-        #print("delta = ", delta,"\n\n")
 
         # Relplace the old M-step estimates with the new ones.
         phi = phi_new
         theta = theta_new
 
         if delta < 0.1: 
+
+            print('\n')
 
             frame_dists = {f: {a: {index_to_word[a][i]: prob 
                 for (i,prob) in enumerate(phi[a].T[f])} for a in args} for f in range(F)}
@@ -106,8 +94,11 @@ counts, word_to_index, index_to_word, V,
                     for i in range(N)}
             word_data = [tuple(index_to_word[a][data[a][i]] for a in args) for i in range(N)]
 
-            # print(frame_dists, frame_assign, theta, sep='\n\n\n')
             return(frame_dists, frame_assign, theta)
+
+        t += 1 
+        print("Iteration:", t, "delta=", delta, end='\r', flush=True)
+        #print_clustering(F, mu)
 
 def print_clustering(F, mu):
     frames = np.argmax(mu, axis=1)
@@ -120,5 +111,3 @@ def print_clustering(F, mu):
 
 def is_prob_dist(p, epsilon):
     return abs(1 - sum(p)) < epsilon
-
-#frame_dists, frame_assign, theta = em(30,1.5)
