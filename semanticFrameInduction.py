@@ -11,9 +11,10 @@ import itertools
 
 args = ('v','s','o')
 
-def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=20):
+def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=2):
     print('Pruning to %', cutoffPC, '... ', end='')
-    V = {}
+    V  = {}
+    SO = {}
     data = {}
     with open(dataFile) as f:
         # build the verb vocabulary
@@ -23,19 +24,34 @@ def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=20):
                 V[v] += c
             else: 
                 V[v] = c
+            if s in SO:
+                SO[s] += c
+            else:
+                SO[s] = c
+            if o in SO:
+                SO[o] += c
+            else:
+                SO[o] = c
             if (v,s,o) in data:
                 data[(v,s,o)] += c
             else:
                 data[(v,s,o)] = c
 
-    # determine the cutoff 
-    counts = list(V.values())
-    counts.sort(reverse=True)
-    cutoff = counts[int(len(counts) * cutoffPC/100)]
-    print("The absolute cutoff for verb frequency will be", cutoff)
+    # determine the cutoffs
+    countsV = list(V.values())
+    countsV.sort(reverse=True)
+
+    countsSO = list(SO.values())
+    countsSO.sort(reverse=True)
+
+    cutoffV = countsV[int(len(countsV) * cutoffPC/100)-1]
+    cutoffSO = countsSO[int(len(countsSO) * cutoffPC/100)-1]
+
+    print("The absolute cutoff for verb frequency will be", cutoffV)
+    print("The absolute cutoff for subject/object frequency will be", cutoffSO)
     # pop off the data with low counts
     for (v,s,o) in data.copy():
-        if V[v] < cutoff:
+        if V[v] < cutoffV or SO[s] < cutoffSO or SO[o] < cutoffSO:
             data.pop((v,s,o))
 
     pickle.dump(data, open("allData.pkl", 'wb'))
@@ -178,7 +194,7 @@ def get_result_table():
     return results 
     
 
-#pruneData()
-#splitData()
+pruneData()
+splitData()
 #runTests()
 
