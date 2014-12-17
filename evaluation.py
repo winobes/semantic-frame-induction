@@ -18,14 +18,16 @@ def show_most_common(frame_freq, top=25):
 
     for f in frame_freq:
         print('----------- frame', f,'-------------')
-        print('verbs\t\tsubjects\tobjects')
+        print('verbs\t\t\tsubjects\t\tobjects')
         for i in range(top):
             for a in args:
-                if len(frame_freq[f][a][i][0]) >= 8:
-                    tabs = '\t'
-                else: 
-                    tabs = '\t\t'
-                print(frame_freq[f][a][i][0], end=tabs)
+                try:
+                    tablen = ((7 + len(frame_freq[f][a][i][0])) // 8)
+                except IndexError:
+                    print(end='\t\t\t')
+                    continue
+                tabs = '\t' if tablen >= 2 else '\t\t'
+                print("%.4f"%frame_freq[f][a][i][1], frame_freq[f][a][i][0], end=tabs)
             print()
         print()
 
