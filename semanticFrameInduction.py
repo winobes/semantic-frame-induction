@@ -8,6 +8,7 @@ import collections
 import os
 from probfuncs import weighted_sample
 import itertools
+from operator import itemgetter
 
 args = ('v','s','o')
 
@@ -54,9 +55,18 @@ def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=1.5):
         if V[v] < cutoffV or SO[s] < cutoffSO or SO[o] < cutoffSO:
             data.pop((v,s,o))
 
+
+    data = pruneData2(data, 25)
+    print("datapoints (after prune2) :  ", len(data), "first item:", next (iter (data.items())))
+    
     pickle.dump(data, open("allData.pkl", 'wb'))
     print('Done.')
 
+def pruneData2(data, PC):
+    print("datapoints (before prune2): ", len(data), "first item:", next (iter (data.items())))
+    return dict(sorted(data.items(), key=itemgetter(1))[int(len(data)*((100-PC)/100)):])
+
+     
 def splitData( dataFile='allData.pkl', testPC=10, xvPC=20):
 
     # load up all the data
@@ -194,7 +204,7 @@ def get_result_table():
     return results 
     
 
-pruneData()
-splitData()
+#pruneData()
+#splitData()
 #runTests()
 
