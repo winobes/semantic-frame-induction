@@ -11,7 +11,7 @@ import itertools
 
 args = ('v','s','o')
 
-def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=2):
+def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=1.5):
     print('Pruning to %', cutoffPC, '... ', end='')
     V  = {}
     SO = {}
