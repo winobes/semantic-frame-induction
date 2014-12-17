@@ -83,12 +83,12 @@ def gibbs(F, alpha, beta, T, inData):
     # infer the frame prior from assignments
     theta = normalize([frame_count[f] for f in range(F)])
     # infer frame's argument distributons from assignments
-    frame_dists = construct_frame_dists(frame_assign, F, sentence_count)
+    frame_dists = construct_frame_dists(frame_assign, F, sentence_count, frame_count)
 
     return (frame_dists, frame_assign, theta)
 
 # questionable.
-def construct_frame_dists(frame_assign, F, counts):
+def construct_frame_dists(frame_assign, F, counts, frame_count):
     totals_in_frame = {f: {a: 0 for a in args} for f in range(F)}
     frame_dists = {f: {a: {} for a in args} for f in range(F)}
     for ((v,s,o), f) in frame_assign.items():
@@ -97,4 +97,9 @@ def construct_frame_dists(frame_assign, F, counts):
                 frame_dists[f][a][w] += counts[(v,s,o)]
             else:
                 frame_dists[f][a][w] = counts[(v,s,o)]
+    # normalize
+    for f in frame_dists:
+        for a in args:
+            for w in frame_dists[f][a]:
+                frame_dists[f][a][w] /= frame_count[f]
     return frame_dists
