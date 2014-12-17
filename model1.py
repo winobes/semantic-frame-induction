@@ -74,6 +74,7 @@ def gibbs(F, alpha, beta, T, inData):
                 dist = cumulative(normalize([posterior(f, v,s,o) for f in range(F)]))
                 # assign a new label to the sentence
                 f = cum_dist_choice(dist)
+                frame_assign[(v,s,o)] = f
                 # modify counts to reflect (v,s,o)'s new frame
                 frame_count[f] += c
                 frame_count_v[f][v] += c
