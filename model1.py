@@ -97,3 +97,4 @@ def construct_frame_dists(frame_assign, F, counts):
                 frame_dists[f][a][w] += counts[(v,s,o)]
             else:
                 frame_dists[f][a][w] = counts[(v,s,o)]
+    return frame_dists
