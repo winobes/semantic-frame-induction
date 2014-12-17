@@ -3,6 +3,33 @@ import model0 as mod0
 import random as rnd
 import matplotlib.pyplot as pp
 
+args = ('v','s','o')
+
+def frames_by_frequency(frame_dists):
+
+    frame_freq = {f: {a:list(frame_dists[f][a].items()) for a in args} for f in frame_dists}
+    for f in frame_freq:
+        for a in args:
+            frame_freq[f][a].sort(key=lambda x: x[1], reverse=True)
+    return frame_freq
+
+
+def show_most_common(frame_freq, top=25):
+
+    for f in frame_freq:
+        print('----------- frame', f,'-------------')
+        print('verbs\t\tsubjects\tobjects')
+        for i in range(top):
+            for a in args:
+                if len(frame_freq[f][a][i][0]) >= 8:
+                    tabs = '\t'
+                else: 
+                    tabs = '\t\t'
+                print(frame_freq[f][a][i][0], end=tabs)
+            print()
+        print()
+
+
 def frame_coherency(model, data):
 
     (frame_dists, frame_assign, theta) = model
