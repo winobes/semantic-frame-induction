@@ -12,8 +12,8 @@ from operator import itemgetter
 
 args = ('v','s','o')
 
-def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=1.5):
-    print('Pruning to %', cutoffPC, '... ', end='')
+def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffV_PC=1.5, cutoffSO_PC=1.5):
+    print('Pruning verbs to %', cutoffV_PC, 'subject/objects to %', cutoffSO_PC, '... ', end='')
     V  = {}
     SO = {}
     data = {}
@@ -37,6 +37,8 @@ def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=1.5):
                 data[(v,s,o)] += c
             else:
                 data[(v,s,o)] = c
+    uniqueVSOs = len(data)
+    totalVSOs = sum(data.values())
 
     # determine the cutoffs
     countsV = list(V.values())
@@ -45,8 +47,11 @@ def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=1.5):
     countsSO = list(SO.values())
     countsSO.sort(reverse=True)
 
-    cutoffV = countsV[int(len(countsV) * cutoffPC/100)-1]
-    cutoffSO = countsSO[int(len(countsSO) * cutoffPC/100)-1]
+    vocabV = int(len(countsV) * cutoffV_PC/100)
+    vocabSO = int(len(countsSO) * cutoffSO_PC/100)
+
+    cutoffV = countsV[vocabV-1]
+    cutoffSO = countsSO[vocabSO-1]
 
     print("The absolute cutoff for verb frequency will be", cutoffV)
     print("The absolute cutoff for subject/object frequency will be", cutoffSO)
@@ -55,9 +60,10 @@ def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffPC=1.5):
         if V[v] < cutoffV or SO[s] < cutoffSO or SO[o] < cutoffSO:
             data.pop((v,s,o))
 
+    print("There verb vocabulary is", vocabV, ". The subject/object vocabulary is", vocabSO)
+    print("The pruned data is %", (100 * len(data) / uniqueVSOs), "of the original by unique VSOs")
+    print("and it is %", (100 * sum(data.values()) / totalVSOs), "of the original by total counts.")
 
-    data = pruneData2(data, 25)
-    print("datapoints (after prune2) :  ", len(data), "first item:", next (iter (data.items())))
     
     pickle.dump(data, open("allData.pkl", 'wb'))
     print('Done.')
@@ -204,7 +210,7 @@ def get_result_table():
     return results 
     
 
-#pruneData()
+pruneData()
 #splitData()
 #runTests()
 
