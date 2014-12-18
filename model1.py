@@ -3,7 +3,7 @@ from probfuncs import normalize, cumulative, cum_dist_choice
 
 args = ('v', 's', 'o')
 
-def gibbs(F, alpha, beta, T, inData):
+def gibbs(F, alpha, beta, T, burnIn, inData):
 
     data = {} # doc -> list of sentences
     sentence_count = inData # (v,s,o) -> # of observations 
@@ -58,9 +58,10 @@ def gibbs(F, alpha, beta, T, inData):
                   / (F*alpha + sentence_count[(v,s,o)]) )
         return v_term * so_term * f_term
 
+    samples = {(v,s,o): {f: 0 for f in range(F)} for (v,s,o) in sentence_count}
+    
     for t in range(T):
         print('t =',t,'of',T,end='\r')
-        t += 1 # #iteration
         for v in data: # iterate through documents (verbs) 
             for (s,o) in data[v]: # iterate through sentences
                 c = sentence_count[(v,s,o)]
@@ -75,32 +76,12 @@ def gibbs(F, alpha, beta, T, inData):
                 # assign a new label to the sentence
                 f = cum_dist_choice(dist)
                 frame_assign[(v,s,o)] = f
+                if t > burnIn:
+                    samples[(v,s,o)][f] += 1
                 # modify counts to reflect (v,s,o)'s new frame
                 frame_count[f] += c
                 frame_count_v[f][v] += c
                 frame_count_w[f][s] += c
                 frame_count_w[f][o] += c
 
-    # infer the frame prior from assignments
-    theta = normalize([frame_count[f] for f in range(F)])
-    # infer frame's argument distributons from assignments
-    frame_dists = construct_frame_dists(frame_assign, F, sentence_count, frame_count)
-
-    return (frame_dists, frame_assign, theta)
-
-# questionable.
-def construct_frame_dists(frame_assign, F, counts, frame_count):
-    totals_in_frame = {f: {a: 0 for a in args} for f in range(F)}
-    frame_dists = {f: {a: {} for a in args} for f in range(F)}
-    for ((v,s,o), f) in frame_assign.items():
-        for (a,w) in zip(args, (v,s,o)):
-            if w in frame_dists[f][a]:
-                frame_dists[f][a][w] += counts[(v,s,o)]
-            else:
-                frame_dists[f][a][w] = counts[(v,s,o)]
-    # normalize
-    for f in frame_dists:
-        for a in args:
-            for w in frame_dists[f][a]:
-                frame_dists[f][a][w] /= frame_count[f]
-    return frame_dists
+    return samples
