@@ -3,17 +3,31 @@
 * Paper
     * Introduction/background
     * Related work
+        * Ruth
+        * O'Connor
     * Models we tried / derivations?
+        * model 0
+        * model 1
+    * Experiments
+        * Data
+            * Google syntactic-ngrams
+            * Data pruning
+        * Trials & parameters
     * Results
+        * Frame coherency
+        * Comparison to FrameNet (dice sim)
     * Discussion
+    * Future Work
+        * Hyperparameter learning
+        * argument swapping (function of verb and frame)
     * Conclusion
-* Presentation
+* ~~Presentation~~
     * ~~what are frames example~~ 
     * ~~model 0~~
     * ~~model 1~~
     * data (google n-grams)
     * evaluation
-* Implementation
+* ~~Implementation~~
     * ~~Model 0 (EM)~~
     * Adapted Model 1 (Gibbs)
         * ~~derive Gibbs~~
