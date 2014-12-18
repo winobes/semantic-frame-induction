@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#inc
-
 
 enum {
     VERB,
@@ -12,7 +10,6 @@ enum {
     FRAME,
     M 
 };
-
 
 long random_weighted(double *weights, int len) {
     double r = (double)rand() / (double)RAND_MAX;
@@ -40,14 +37,13 @@ long random_weighted(double *weights, int len) {
 
 void gibbs(void *data_void, void *sample_void, 
         long N, long V, long W, int F, int T, 
-        double alpha, double beta, int(burnIn)) {
+        double alpha, double beta, int burnIn ) {
         
     srand(time(NULL));
 
-    printf("%d", INT_MAX);
-
     long *data = (long *) data_void;
     int *sample = (int *) sample_void;
+
     long *frame_count = calloc(F, sizeof(long));
     long *doc_count = calloc(V, sizeof(long));
     long **frame_count_v = calloc(F, sizeof(long*));
@@ -115,6 +111,7 @@ void gibbs(void *data_void, void *sample_void,
         }
     }
 
+    printf("here\n");
     for (int f = 0; f < F; f++) {
         free(frame_count_v[f]);
         free(frame_count_w[f]);
@@ -125,5 +122,6 @@ void gibbs(void *data_void, void *sample_void,
     free(frame_count_v);
     free(frame_count_w);
     free(posterior);
+    printf("here\n");
 
 }
