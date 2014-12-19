@@ -21,28 +21,20 @@ long random_weighted(double *weights, int len) {
     for (int i = 0; i < len; i++) {
         total += weights[i] / sum; 
         if (r < total) {
-            if (i >= len) { // check if this is the source of the segfault
-                printf("frame = %d\n", i);
-                printf("dist = ");
-                for (int j = 0; j < len; j++) {
-                    printf("%f ", weights[j]);
-                }
-                printf("\nsum = %f, total = %f, r = %f\n", sum, total, r);
-            }
             return i;
         }
     }
 }
 
 
-void gibbs(void *data_void, void *sample_void, 
+void gibbs(void *data_void, void *samples_void, 
         long N, long V, long W, int F, int T, 
         double alpha, double beta, int burnIn ) {
         
     srand(time(NULL));
 
     long *data = (long *) data_void;
-    int *sample = (int *) sample_void;
+    long *samples = (long *) samples_void;
 
     long *frame_count = calloc(F, sizeof(long));
     long *doc_count = calloc(V, sizeof(long));
@@ -69,7 +61,8 @@ void gibbs(void *data_void, void *sample_void,
     }
 
     for (int t = 0; t < T; t++) {
-        printf("Iteration %d of %d.\n", t, T);
+        int changes = 0;
+        printf("Iteration %d of %d. ", t+1, T);
         for (int i = 0; i < N; i++) {
 
             long v = data[M*i + VERB];
@@ -77,7 +70,6 @@ void gibbs(void *data_void, void *sample_void,
             long o = data[M*i + OBJ];
             long c = data[M*i + COUNT];
             long f = data[M*i + FRAME];
-            /*printf("here %d %lu %lu %lu %lu %lu\n", i, v,s,o,c,f);*/
 
             // modify counts to exclude data point i
             frame_count[f] -= c;
@@ -95,23 +87,29 @@ void gibbs(void *data_void, void *sample_void,
                                  / (F*alpha + c) );
                 posterior[f] = v_term * so_term * f_term;
             }
+
             // assign the new frame randomly
-            f = random_weighted(posterior, F);
-            data[M*i + FRAME] = f;
+            int f_new = random_weighted(posterior, F);
+            if (f != f_new) changes +=1;
+            if (f_new >= F) {
+               printf("Error: frame out of range.\n");
+               return;
+            }
+            data[M*i + FRAME] = f_new;
             // record the sample
             if (t >= burnIn) {
-                sample[F*i + f] += 1;
+                samples[F*i + f_new] += 1;
             }
 
             // modify counts to reflect new frame 
-            frame_count[f] += c;
-            frame_count_v[f][v] += c;
-            frame_count_w[f][s] += c;
-            frame_count_w[f][o] += c;
+            frame_count[f_new] += c;
+            frame_count_v[f_new][v] += c;
+            frame_count_w[f_new][s] += c;
+            frame_count_w[f_new][o] += c;
         }
+        printf("Had %i of %i VSOs change frame.\n", changes, N);
     }
 
-    printf("here\n");
     for (int f = 0; f < F; f++) {
         free(frame_count_v[f]);
         free(frame_count_w[f]);
@@ -122,6 +120,5 @@ void gibbs(void *data_void, void *sample_void,
     free(frame_count_v);
     free(frame_count_w);
     free(posterior);
-    printf("here\n");
 
 }

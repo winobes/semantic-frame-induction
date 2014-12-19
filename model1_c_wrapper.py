@@ -1,7 +1,7 @@
 import numpy as np
 import ctypes
 from random import randrange
-from probfuncs import normalize
+import csv
 
 gibbs_c = ctypes.CDLL('./gibbs_c.so').gibbs
 
@@ -37,7 +37,7 @@ def gibbs(F, alpha, beta, T, burnIn, sentence_count):
         sentence_count[(v,s,o)], randrange(F)] for (v,s,o) in sentence_count], dtype=np.long)
 
     # set up the array to storte the samples in
-    arrSamples = np.zeros((N,F), dtype=np.int)
+    arrSamples = np.zeros((N,F), dtype=np.long)
 
     gibbs_c(ctypes.c_void_p(arrData.ctypes.data), ctypes.c_void_p(arrSamples.ctypes.data),
             ctypes.c_long(N), ctypes.c_long(V), ctypes.c_long(W), ctypes.c_int(F), ctypes.c_int(T),
@@ -49,6 +49,22 @@ def gibbs(F, alpha, beta, T, burnIn, sentence_count):
         s = index_to_word[arrData[i][1]]
         o = index_to_word[arrData[i][2]]
         samples[(v,s,o)] = list(arrSamples[i])
+        if any(x > T for x in arrSamples[i]):
+            print((v,s,o), arrSamples[i])
 
     return samples 
+
+def save_samples(samples, filename):
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter='\t', quoting=csv.QUOTE_NONE)
+        for (v,s,o) in samples:
+            writer.writerow([v,s,o] + samples[(v,s,o)])
+
+def read_samples(filename):
+    samples = {}
+    with open(filename, newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter='\t', quoting=csv.QUOTE_NONE)
+        for row in reader:
+            samples[tuple(row[:3])] = [int(c) for c in row[3:]]
+    return samples
 
