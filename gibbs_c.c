@@ -80,12 +80,14 @@ void gibbs(void *data_void, void *samples_void,
             // calculate the posterior for frames on this data point
             for (int f = 0; f < F; f++) {
                 double v_term  = ( (beta + frame_count_v[f][v]) 
-                                 / (V + frame_count[f]) );
-                double so_term = ( (2*beta + frame_count_w[f][s] + frame_count_w[f][o])
-                                 / (W + frame_count[f]) );
+                                 / (beta*V + frame_count[f]) );
+                double s_term = ( (beta + frame_count_w[f][s])
+                                 / (beta*W + frame_count[f]) );
+                double o_term = ( (beta + frame_count_w[f][o])
+                                 / (beta*W + frame_count[f]) );
                 double f_term  = ( (alpha + frame_count_v[f][v])
                                  / (F*alpha + c) );
-                posterior[f] = v_term * so_term * f_term;
+                posterior[f] = v_term * s_term * o_term * f_term;
             }
 
             // assign the new frame randomly
