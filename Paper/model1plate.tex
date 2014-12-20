@@ -1,7 +1,7 @@
 \begin{tikzpicture}[]
-    \node[obs]                   (w)     {$w^s,w^o$}; %
+    \node[obs]                   (w)     {$w^v,w^s,w^o$}; %
     \node[latent, above=0.5cm of w]     (f)     {$f$};
-    \node[latent, left=0.5cm of f]     (theta) {$\theta$};
+    \node[latent, left=0.7cm of f]     (theta) {$\theta$};
     \node[latent, left=0.5cm of theta] (alpha) {$\alpha$};
     \node[latent, right=of w]    (phi)   {$\varphi^v,\varphi^s,\varphi^o$};
     \node[latent, above=0.5cm of phi] (beta) {$\beta$};
@@ -12,5 +12,5 @@
     \edge {beta} {phi};
     \plate {frames} {(phi)} {$F$};
     \plate {datapoints} {(f) (w)} {$N$};
-    \plate {verbs} {(f) (w) (datapoints) (theta)} {$V$};
+    \plate {verbs} {(f) (w) (datapoints) (theta)} {$D$};
 \end{tikzpicture}
