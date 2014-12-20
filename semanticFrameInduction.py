@@ -11,8 +11,9 @@ import itertools
 from operator import itemgetter
 
 args = ('v','s','o')
+dataFile = 'Preprocessing/all_VSOs.sorted.concat'
 
-def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffV_PC=1.5, cutoffSO_PC=1.5):
+def pruneData( dataFile=dataFile, cutoffV_PC=1.5, cutoffSO_PC=1.5):
     print('Pruning verbs to %', cutoffV_PC, 'subject/objects to %', cutoffSO_PC, '... ', end='')
     V  = {}
     SO = {}
@@ -68,9 +69,42 @@ def pruneData( dataFile='Preprocessing/all_VSOs.sorted.concat', cutoffV_PC=1.5, 
     pickle.dump(data, open("allData.pkl", 'wb'))
     print('Done.')
 
-def pruneData2(data, PC):
-    print("datapoints (before prune2): ", len(data), "first item:", next (iter (data.items())))
-    return dict(sorted(data.items(), key=itemgetter(1))[int(len(data)*((100-PC)/100)):])
+def pruneData2( dataFile=dataFile, cutoffV_PC=25, cutoffVSOs=1000):
+    print('Pruning to %', cutoffV_PC, 'of verbs with at most', cutoffVSOs, 'VOSs per verb.')
+    V  = {}
+    data = {}
+    with open(dataFile) as f:
+        # build the verb vocabulary
+        for v,s,o,c in map(lambda x: x.split(' ')[:-1], f.read().splitlines()):
+            c = int(c)
+            if v in V:
+                V[v] += c
+            else: 
+                V[v] = c
+            if (v,s,o) in data:
+                data[(v,s,o)] += c
+            else:
+                data[(v,s,o)] = c
+    uniqueVSOs = len(data)
+    totalVSOs = sum(data.values())
+    countsV = list(V.values())
+    countsV.sort(reverse=True)
+    vocabV = int(len(countsV) * cutoffV_PC/100)
+    cutoffV = countsV[vocabV-1]
+    print("The absolute cutoff for verb frequency will be", cutoffV)
+    print("There size of the verb vocabulary is", vocabV)  
+    dataList = list(data.items())
+    dataList.sort(key=lambda x: x[1], reverse=True)
+    verbVSOs = {v: 0 for v in V}
+    for ((v,s,o),_) in dataList: 
+        if v in V and verbVSOs[v] < 1000:
+            verbVSOs[v] += 1
+        else: 
+            data.pop((v,s,o))
+    print("The pruned data is %", (100 * len(data) / uniqueVSOs), "of the original by unique VSOs")
+    print("and it is %", (100 * sum(data.values()) / totalVSOs), "of the original by total counts.")
+    pickle.dump(data, open("allData.pkl", 'wb'))
+
 
      
 def splitData( dataFile='allData.pkl', testPC=10, xvPC=20):
@@ -89,7 +123,6 @@ def splitData( dataFile='allData.pkl', testPC=10, xvPC=20):
     N = len(dataList)
     split1 = int(N*testPC/100)
     split2 = split1 + int(N*xvPC/100)
-    print("Total of ", N, "items. 0 to", split1, "to testList,", split1, "to", split2, "to xvList.")
     testList       = dataList[:split1]
     xvList         = dataList[split1:split2]
     trainingList   = dataList[split2:]
@@ -210,7 +243,7 @@ def get_result_table():
     return results 
     
 
-pruneData()
+#pruneData2()
 #splitData()
 #runTests()
 

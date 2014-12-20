@@ -1,3 +1,8 @@
+paper.pdf: paper.tex
+	pdflatex -output-fromat=pdf paper.tex
+	bibtex paper.aux
+	pdflatex -output-format=pdf paper.tex 
+	pdflatex -output-format=pdf paper.tex 
 
 EMDerivation.pdf: EMDerivation.tex
 	pdflatex -output-fromat=pdf EMDerivation.tex

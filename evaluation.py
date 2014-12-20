@@ -7,28 +7,36 @@ args = ('v','s','o')
 
 def frames_by_frequency(frame_dists):
 
-    frame_freq = {f: {a:list(frame_dists[f][a].items()) for a in args} for f in frame_dists}
+    frame_freq = {f: list(frame_dists[f].items()) for f in frame_dists}
     for f in frame_freq:
-        for a in args:
-            frame_freq[f][a].sort(key=lambda x: x[1], reverse=True)
+        frame_freq[f].sort(key=lambda x: x[1], reverse=True)
     return frame_freq
 
+def show_most_common(frame_dists_v, frame_dists_w, top=25):
 
-def show_most_common(frame_freq, top=25):
+    frame_freq_v = frames_by_frequency(frame_dists_v)
+    frame_freq_w = frames_by_frequency(frame_dists_w)
 
-    for f in frame_freq:
+    stopwords = ['it', 'you', 'them', 'him', 'he', 'i', 'they', 'we', 'me', 'us', 'she', 'her', 'me'] 
+
+    for f in frame_freq_v:
         print('----------- frame', f,'-------------')
-        print('verbs\t\t\tsubjects\t\tobjects')
+        print('verbs\t\t\tsubjects/objects')
+        j = 0
         for i in range(top):
-            for a in args:
-                try:
-                    tablen = ((7 + len(frame_freq[f][a][i][0])) // 8)
-                except IndexError:
-                    print(end='\t\t\t')
-                    continue
+            if frame_freq_v[f][i][1] < 0.001:
+                print(end='\t\t\t')
+            else:
+                tablen = ((7 + len(frame_freq_v[f][i][0])) // 8)
                 tabs = '\t' if tablen >= 2 else '\t\t'
-                print("%.4f"%frame_freq[f][a][i][1], frame_freq[f][a][i][0], end=tabs)
+                print("%.4f"%frame_freq_v[f][i][1], frame_freq_v[f][i][0], end=tabs)
+            while frame_freq_w[f][j][0] in stopwords:
+                j += 1
+            tablen = ((7 + len(frame_freq_w[f][j][0])) // 8)
+            tabs = '\t' if tablen >= 2 else '\t\t'
+            print("%.4f"%frame_freq_w[f][j][1], frame_freq_w[f][j][0], end=tabs)
             print()
+            j += 1
         print()
 
 

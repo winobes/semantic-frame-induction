@@ -35,3 +35,12 @@ class WeightedPopulation(Sequence):
         if not 0 <= i < len(self):
             raise IndexError(i)
         return self.population[bisect.bisect(self.cumweights, i)]
+
+def increment(counter, value, amount=1):
+    if value in counter:
+        counter[value] += amount
+    else:
+        counter[value] = amount
+
+def is_dist(distList):
+    return abs(sum(distList) - 1) < .001

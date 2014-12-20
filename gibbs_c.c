@@ -34,7 +34,7 @@ void gibbs(void *data_void, void *samples_void,
     srand(time(NULL));
 
     long *data = (long *) data_void;
-    long *samples = (long *) samples_void;
+    int *samples = (int *) samples_void;
 
     long *frame_count = calloc(F, sizeof(long));
     long *doc_count = calloc(V, sizeof(long));
@@ -107,7 +107,7 @@ void gibbs(void *data_void, void *samples_void,
             frame_count_w[f_new][s] += c;
             frame_count_w[f_new][o] += c;
         }
-        printf("Had %i of %i VSOs change frame.\n", changes, N);
+        printf("Had %d of %lu VSOs change frame.\n", changes, N);
     }
 
     for (int f = 0; f < F; f++) {
