@@ -24,6 +24,7 @@ long random_weighted(double *weights, int len) {
             return i;
         }
     }
+    return len - 1;
 }
 
 
