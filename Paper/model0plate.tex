@@ -1,9 +1,9 @@
 \begin{tikzpicture}
   % Nodes
-  \node[obs] (datapoint) {$w_v,w_s,w_o$} ; %
+  \node[obs] (datapoint) {$w^v,w^s,w^o$} ; %
   \node[latent, above=0.75cm of datapoint] (F) {$f$} ; %
   \node[latent, left=of F] (theta) {$\theta$}; %
-  \node[latent, right=of datapoint] (phi) {$\varphi_v,\varphi_s,\varphi_o$}; %
+  \node[latent, right=of datapoint] (phi) {$\varphi^v,\varphi^s,\varphi^o$}; %
   \edge {theta} {F} ; %
   \edge {F} {datapoint}
   \edge {phi} {datapoint} ; %

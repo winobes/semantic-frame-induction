@@ -1,10 +1,14 @@
-\documentclass[11pt,twocolumn]{scrartcl}
+\documentclass[10pt,twocolumn]{scrartcl}
+
+\usepackage{amsmath}
 
 \usepackage{natbib}
 \bibliographystyle{plain}
 
 \usepackage{tikz}
 \usetikzlibrary{bayesnet}
+
+\renewcommand\phi\varphi
 
 \author{
     Verdegaal Jacob \\
@@ -18,8 +22,6 @@
 }
 
 \title{Inducing Semantic Frames on a Very Large Corpus of Syntactic-Ngrams}
-
-\renewcommand\phi\varphi
 
 \begin{document}
 
@@ -44,12 +46,57 @@ paper \cite{rooth1999}.
 \section{Induction Models}
 
 \subsection{Model 0: Un-structured Tuples}
+\begin{tabbing}
+    $N$ \hspace{10pt}\= number of data points\\
+    $F$              \> number of frames\\
+    $\theta$         \> distribution over frames\\
+    $\varphi_a$      \> distributions (for each frame) over \\ 
+                     \> vocabulary of argument $a$\\
+    $w_a$            \> datapoint (verb, subject, object)\\
+\end{tabbing}
+E-Step:
+\begin{equation}
+P(f|w_i) = \frac{\prod_a^{\{v,s,o\}}P(w_i^a|\phi_f^a) P(f|\theta)}{\sum_{f'}^F\prod_a^{\{v,s,o\}}P(w_i^a|\phi_{f'}^a)}
+\end{equation}
+M-Step:
+\begin{equation}
+P(f|\theta) = \frac{\sum_{i=1}^N \mu_i(f)}{\sum_{f'=1}^F\sum_{i=1}^N\mu_i(f')}
+\end{equation}
+\begin{equation}
+P(w|\phi_f^a) = \frac{\sum_{i=1}^N \mu_i(f) C(w,a)}{\sum_{w'=1}^{V^a}\sum_{i=1}^N \mu_i(f) C(w',a)}
+\end{equation}
+\begin{tabbing}
+    $n$ \hspace{10pt}\= number of data points\\
+    $f$              \> number of frames\\
+    $v$              \> number of documents (= verb vocabulary)\\
+    $\theta$         \> distribution over frames\\
+    $\varphi_a$      \> distributions (for each frame) over \\ 
+                     \> vocabulary of argument $a$\\
+    $w_a$            \> datapoint (verb, subject, object)\\
+    $\beta$          \> hyperprior for $\varphi$ (for each argument)\\
+    $\alpha$         \> hyperprior for $\theta$ \\
+\end{tabbing}
+
 \begin{figure}
 \input{model0plate.tex}
 \caption{Model 0}
 \end{figure}
 
 \subsection{Model 1: Verb Documents}
+Gibbs:
+\begin{align}
+&p(z_{ij} = f| \mathbf{f}_{-ij},\alpha,\beta,\mathbf{w})\\
+\propto &\prod_a^{\{v,s,o\}}\frac{\beta^a + \tilde{c}(f,w_{ij})}{V^a + \tilde{c}(f)}
+        \cdot \frac{\alpha + \tilde{c}(i,f)}{f\alpha+\tilde{c}(i)}
+\end{align}
+
+\begin{tabbing}
+    $\tilde{c}(f,w_{ij})$ \hspace{10pt}\= times $w_{ij}$ is assigned to frame $f$\\
+    $\tilde{c}(f)$                     \> total data points assigend to $f$\\
+    $\tilde{c}(i,f)$                   \> VSOs in document $i$ assigned to $f$\\
+    $\tilde{c}(i)$                     \> VSOs in document $i$\\ 
+\end{tabbing}
+
 \begin{figure}
     \input{model1plate.tex}
     \caption{Model 1}
@@ -60,6 +107,13 @@ paper \cite{rooth1999}.
 
 \subsection{Google Syntactic-ngrams}
 Here we talk a bit about the syntactic n-grams and all that \cite{ngrams2013}.
+\begin{itemize}
+    \item A syntactic-ngram is a $k$-word rooted subtree for some sentence. 
+    \item Google ngrams come from a corpus of 3.5 million English books.
+    \item We trimmed the ``verb args'' dataset to consider only subject-verb-object triples (VSO's).
+    \item The dataset contains 1,629,120 unique VSO's with a total of 96,245,401 by count.
+    \item In our final results we may only use the most common \%20 of these...
+\end{itemize}
 
 \subsection{Pruning}
 
@@ -68,6 +122,12 @@ Here we talk a bit about the syntactic n-grams and all that \cite{ngrams2013}.
 
 
 \section{Results}
+\subsection{Frame Coherency}
+rame coherency: for a datapoint $(v,s,o)$ and a tuple $(v^r,s,o)$ where $v^r$ is a random choses verb: $P(v\mid s,o) \geq P(v^r\mid s,o)$  
+\subsection{Frame Correctness}
+Frame correctness: for the top 25 most probable verbs per frame $TV$ and framenet classes of verbs $FN$: \[\frac{2|TV\cap FN|}{|TV|+|FN|}\]
+\subsection{Model 0}
+\subsection{Model 1}
 
 
 \section{Discussion}
