@@ -48,7 +48,7 @@ def frame_coherency(model, data):
         M = 0
     elif len(model) == 2:
         (verb_dists, word_dists) = model
-        frame_assign  =  {(v,s,o): np.argmax([verb_dists[f][v]*word_dists[f][s]*word_dists[f][o] for f in verbs_dists],axis=0) for (v,s,o) in data}
+        frame_assign  =  {(v,s,o): np.argmax([verb_dists[f][v]*word_dists[f][s]*word_dists[f][o] for f in verb_dists],axis=0) for (v,s,o) in data}
         M = 1
     # initialize variables
     total = 0            # actual number of tested examples (unique entries in model * counts)
@@ -63,8 +63,10 @@ def frame_coherency(model, data):
     if M == 0:
         probs = [frame_dists[frame_assign[(v,s,o)]]['v'][v]*frame_dists[frame_assign[(v,s,o)]]['s'][s]*frame_dists[frame_assign[(v,s,o)]]['o'][o]*theta[frame_assign[(v,s,o)]] for(v,s,o) in data ]
     elif M == 1:
-        frm = frame_assign[(v,s,o)]
-        probs = [verb_dists[frm][v]*word_dists[frm][s]*word_dists[frm][o] for (v,s,o) in data ]
+        probs = []
+        for (v,s,o) in data:
+            frm = frame_assign[(v,s,o)]
+            probs.append(verb_dists[frm][v]*word_dists[frm][s]*word_dists[frm][o])
         #verbDists = {f: {index_to_verb[i]: verbDists[i][f] for i in range(V)} for f in range(F)}
 
     # initialize tuples with verb replaced by random verb

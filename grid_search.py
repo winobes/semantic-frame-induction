@@ -37,7 +37,7 @@ def test():
     i=0
     for (f,a,b) in select_best(res_M1):
         fl = open(str('mod1_%s_f%d_a%f_b%f.pkl'%(metrics[i],f,a,b)),'wb')
-        pickle.dump(model1.gibbs(f,a,b,1,10,tstData), fl , pickle.HIGHEST_PROTOCOL) 
+        pickle.dump(model1.gibbs(f,a,b,10,1,tstData), fl , pickle.HIGHEST_PROTOCOL) 
         i += 1
 
 def select_best(resultsXV):

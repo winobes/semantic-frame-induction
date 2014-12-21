@@ -2,8 +2,8 @@ import model1
 import pickle
 
 data = pickle.load(open('trainingData.pkl', 'rb'))
-F = 100 
-T = 1000
+F = 50 
+T = 500 
 alpha = 0.50
 beta = 0.50
 burnIn = 50
