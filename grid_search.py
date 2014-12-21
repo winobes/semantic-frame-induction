@@ -47,7 +47,7 @@ def select_best(resultsXV):
 
 
     # best parameters for both:
-    #       euclidian distance in sorted arrays of best coherency/accuracy - average distance to best params of individual metrics
+    #     euclidian distance in sorted arrays of best coherency/accuracy - average distance to best params of individual metrics
     T = 1000
     for C in range(len(best_coh)):
         A = best_acc.index(best_coh[C])
