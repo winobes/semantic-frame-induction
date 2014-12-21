@@ -56,7 +56,7 @@ Word distributions are completely independent between arguments and accross fram
 Tuples are clustered according to which frame's three distributions best fit the 
 three arguments.
 
-\begin{figure}[h]
+\begin{figure}
 
     \begin{snugshade}
     \scriptsize
@@ -69,8 +69,8 @@ three arguments.
 
     \input{model0plate.tex}
 
-    \label{gen0}
     \caption{Model 0 generative story}
+    \label{gen0}
 
 \end{figure}
 
@@ -78,7 +78,7 @@ Model 0 is based on one originally proposed in \citet{rooth1999}, which
 considers noun-verb pairs. Following \citet{oconnor2013}, we expand the model
 to use the limited syntax of VSOs.
 
-The generative story (fig. \ref{gen0}) gives us the following joint probability:
+The generative story (figure \ref{gen0}) gives us the following joint probability:
 \begin{align*}
 &P(\mathbf{f},\mathbf{w}|\phi,\theta) 
   = P(\mathbf{f}|\theta)P(\mathbf{w}|\phi)\\
@@ -131,11 +131,15 @@ Where $c(w,a)$ indicates the number of times word $w$ is observed as argument $a
 
 \subsection{Model 1}
 
-As we know from topic modeling, it is the nature of documents that they contain 
-sentences with related semantic content. Therefore, it is reasonable to assume 
-that semantic frames are not uniformly distributed within documents. Taking 
-advantage of this assumption, we can break drop model 0's assumption of independence 
-between tuples.
+It is in the nature of documents that they have some degree of internal semantic
+coherence. Put more plainly, a document is usually \emph{about} something. We
+know from topic modeling that LDA with Gibbs sampling can be very successful at
+classifying documents according to some semantic features \citep{griffiths2004}.
+Model 1 leverages this fact by making the assmumption that a given document is 
+likely to have a sparse distribution of frames. As in LDA, the document-level
+sparsity is enforced by a dirichlet prior on frame distributions (see figure
+\ref{gen1} for details). This assumption breaks the independence between tuples 
+that is maintained by Model 0 is dropped in Model 1.
 
 \begin{figure}
 
@@ -156,10 +160,11 @@ between tuples.
     \input{model1plate.tex}
 
     \caption{Model 1 generative story}
+    \label{gen1}
 
 \end{figure}
 
-The independence assumptions int the generative story for model 1 give us the 
+The independence assumptions in the generative story for model 1 give us the 
 following joint distribution:
 
 \begin{align*}
@@ -177,13 +182,49 @@ integrating over the priors:
 \times \int_\theta P(\mathbf{f}|\theta)\,P(\theta|\alpha)
 \end{align*}
 
+These integrals are both dirichlet multinomials:
+
+\[
+\frac{DCM_i^{frames}(f_{ij}=f, \mathbf{f}_{-ij})}{DCM_i^{frames}(\mathbf{f}_{-ij})}
+\]
+
+and
+
+\[
+\prod_a^{\{v,s,o\}}\frac{DCM_i^{vocab^a}(f_{ij}=f, \mathbf{f}_{-ij})}{DCM_i^{vocab^a}(\mathbf{f}_{-ij})}
+\]
+
+We prefer not to consider the subject and object vocabularies independently 
+(i.e., $V^s = V^o$). This is more in line with the theory of semantic frames 
+since in principle, a noun playing a particlar semantic role may appear in either 
+syntactic position.
+
+Dropping terms not dependent on counts, we can calculate the probability 
+required for Gibbs sampling as follows:
 
 \begin{align}
-&p(z_{ij} = f| \mathbf{f}_{-ij},\alpha,\beta,\mathbf{w})\\
-&\propto \prod_a^{\{v,s,o\}}\frac{\beta^a + \tilde{c}(f,w_{ij})}{V^a + \tilde{c}(f)}
-        \cdot \frac{\alpha + \tilde{c}(i,f)}{f\alpha+\tilde{c}(i)}
+& P(f_{ij} = f|\mathbf{f}_{-ij},\mathbf{w}, \alpha,\beta)\nonumber\\
+&=\frac{\alpha + \tilde c(d_i,f)}{F\,\alpha + \tilde c(d_i)}
+\times \prod_a^{\{v,s,o\}}\frac{\beta+\tilde c(f,w_{ij}^a)}{V^a\beta+\tilde c(f)}
 \end{align}
 
+Where $\tilde c (d_i, f)$ is the number of VSO's in document $d_i$ assigned to frame $f$,
+$\tilde c(d_i)$ is the number of VSO's in document $i$,
+$\tilde c(f,w_{ij}^a)$ is the number of VSOs containing $w_{ij}^a$ as argument $a$ that are
+assigned to frame $f$, and
+$\tilde c(f)$ is the number of VSOs assigned to frame $f$.
+Note that $\tilde c$ indicates a count that does not consider the contribution of 
+VSO $w_{i,j}$.
+
+We will see that the data used in this probject doesn't contain any document-level
+information. As a result, we adapt model 1 by grouping VSOs with the same verb into ``documents''.
+This move leverages the dirichlet prior $\alpha$ to enforce sparcity of frames 
+accross verbs, but of course cannot capture the information given by the kind of
+document-level semantic sparsity seen in LDA.\footnote{When we use verbs as
+documents (i.e, $D = V^v$), since $w_{ij}^v$ is the same for all verbs in document $d_i$ 
+(and $d_i$ is the only document with that verb), it follows that the number of VSO's in document 
+$d_i$ belonging to frame $f$ is the same as the number of VSO's with $w_{ij}^v$ as their verb assigned to 
+frame $f$; that is, $\tilde c(d_i, f) = \tilde c(f, w_{ij}^v)$.}
 
 \section{Data}
 
