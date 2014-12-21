@@ -2,6 +2,8 @@
 import xml.etree.ElementTree as ET
 
 
+##------------
+
 lutree = ET.parse('fndata-1.5/luIndex.xml')
 luroot = lutree.getroot()
 luchildren = [i for i in luroot]
@@ -44,44 +46,3 @@ def sort_verbs_to_frames(thresh=0):
     remove_sparse_frames(frameverbs, thresh)
     return frameverbs
 
-
-
-def dicesim(A, B):
-    A = set(A)
-    B = set(B)
-    return (( 2 * len(A & B) ) / ( len(A) + len(B) ))
-
-
-# assume a dict input {frame: list of verbs}
-# finds model frame with best dice score for each FN frame
-def dicematch(model_frameverbs, fn_frameverbs):
-    
-    # dict {FN frameID: {model frame: dicesim score with FN frame}}
-    frame_matches = dict.fromkeys(fn_frameverbs)
-    
-    for fn_frame in fn_frameverbs:
-        dicesims = dict.fromkeys(model_frameverbs)
-        for m_frame in model_frameverbs:
-            dicesims[m_frame] = dicesim(fn_frameverbs[fn_frame], model_frameverbs[m_frame])
-        frame_matches[fn_frame] = dicesims
-
-    return frame_matches
-
-
-def dicemax(model_frameverbs, fn_frameverbs):
-    dicedict = dicematch(model_frameverbs, fn_frameverbs)
-
-    frame_maxes = dict.fromkeys(fn_frameverbs)
-
-    for fn_frame in fn_frameverbs:
-        currentmax = ('',-1)
-        for m_frame in model_frameverbs:
-            if dicedict[fn_frame][m_frame] > currentmax[1]:
-                currentmax = (m_frame, dicedict[fn_frame][m_frame])
-        frame_maxes[fn_frame] = currentmax
-
-    return frame_maxes
-
-
-
-#def get_model_verbsets(frame_assign):
