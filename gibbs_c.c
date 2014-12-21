@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 enum {
     VERB,
@@ -10,6 +11,17 @@ enum {
     FRAME,
     M 
 };
+
+
+void normalize(double *weights, int len) {
+    double sum = 0;
+    for (int i = 0; i < len; i++) {
+        sum += weights[i];
+    }
+    for (int i = 0; i < len; i++) {
+        weights[i] /= sum;
+    }
+}
 
 long random_weighted(double *weights, int len) {
     double r = (double)rand() / (double)RAND_MAX;
@@ -54,8 +66,8 @@ void gibbs(void *data_void, void *samples_void,
         long o = data[M*i + OBJ];
         long c = data[M*i + COUNT];
         long f = data[M*i + FRAME];
-        frame_count[f] += c;
         doc_count[v] += c;
+        frame_count[f] += c;
         frame_count_v[f][v] += c;
         frame_count_w[f][s] += c;
         frame_count_w[f][o] += c;
@@ -73,6 +85,7 @@ void gibbs(void *data_void, void *samples_void,
             long f = data[M*i + FRAME];
 
             // modify counts to exclude data point i
+            doc_count[v] -= c;
             frame_count[f] -= c;
             frame_count_v[f][v] -= c;
             frame_count_w[f][s] -= c;
@@ -87,8 +100,8 @@ void gibbs(void *data_void, void *samples_void,
                 double o_term = ( (beta + frame_count_w[f][o])
                                  / (beta*W + frame_count[f]) );
                 double f_term  = ( (alpha + frame_count_v[f][v])
-                                 / (F*alpha + c) );
-                posterior[f] = v_term * s_term * o_term * f_term;
+                                 / (F*alpha + doc_count[v]) );
+                posterior[f] = log(v_term * s_term * o_term * f_term);
             }
 
             // assign the new frame randomly
@@ -105,13 +118,15 @@ void gibbs(void *data_void, void *samples_void,
             }
 
             // modify counts to reflect new frame 
+            doc_count[v] += c;
             frame_count[f_new] += c;
             frame_count_v[f_new][v] += c;
             frame_count_w[f_new][s] += c;
             frame_count_w[f_new][o] += c;
         }
-        printf("Had %d of %lu VSOs change frame.\r", changes, N);
+        printf("Had %d of %lu VSOs change frame.\n", changes, N);
     }
+
 
     for (int f = 0; f < F; f++) {
         free(frame_count_v[f]);
