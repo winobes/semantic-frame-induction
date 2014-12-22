@@ -21,7 +21,7 @@ for i in ludicts:
     if i['name'][-2:] == '.v':
         luverbdicts.append(i)
 
-
+fnverbs = {i['ID']: (i['name'][:-2], i['frameID']) for i in luverbdicts}
 
 def print_lu_verbs():
     for i in luverbdicts:
@@ -34,6 +34,7 @@ def remove_sparse_frames(d, thresh=0):
             del d[i]
 
 # returns {frameID: [list of verbs]} dict
+#     ("rosters"?)
 def sort_verbs_to_frames(thresh=0):
     frameverbs = dict.fromkeys([i['ID'] for i in framedicts], [])
     for fID in frameverbs.keys():
@@ -46,3 +47,25 @@ def sort_verbs_to_frames(thresh=0):
     remove_sparse_frames(frameverbs, thresh)
     return frameverbs
 
+
+
+
+##----------
+
+def print_frame_info_via_frameID(frameID):
+    #pull data from XML file?
+    fname = fnframes[frameID]
+    ftree = ET.parse('fndata-1.5/frame/'+fname+'.xml')
+    froot = ftree.getroot()
+
+    print(frameID.rjust(6), fnframes[frameID], "\n")
+    
+#    print("DEFINITION",froot[0].text)
+#    print("LEXICAL UNITS", 
+    
+    return
+
+
+
+
+    
