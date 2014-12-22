@@ -18,7 +18,7 @@
     Verdegaal, Jacob\\
     \texttt{jacob.verdegaal@student.uva.nl}
     \and
-    Drumm, Eli\\
+    Drumm, Eli T.\\
     \texttt{etd@dte.li}
     \and
     Noble, Bill\\
@@ -112,7 +112,7 @@ the complete likelihood. In particular, we want to maximize
 \end{align*}
 
 Thus the problem is reduced to maximizing each of the terms in the sum above. Fortunately
-these have closed for solutions using lagrangian multipliers.
+these have closed for solutions using Lagrangian multipliers.
 
 
 \begin{align}
@@ -254,7 +254,14 @@ We further trimmed the data to consider only the \%25 most common verbs
 \subsection{Frame Coherency}
 rame coherency: for a datapoint $(v,s,o)$ and a tuple $(v^r,s,o)$ where $v^r$ is a random choses verb: $P(v\mid s,o) \geq P(v^r\mid s,o)$  
 \subsection{Frame Correctness}
+% I (Eli) can expond here on the relation/contrast/etc.
+%   between what we're doing and Framenet;
+%   I think O'Connor brings up some technical and/or methodological points
+%   about ways we can vs. can't use the FN data for evaluating
+%   induction and such, I'll look it over again.
+
 Frame correctness: for the top 25 most probable verbs per frame $TV$ and framenet classes of verbs $FN$: \[\frac{2|TV\cap FN|}{|TV|+|FN|}\]
+
 \subsection{Model 0}
 \subsection{Model 1}
 

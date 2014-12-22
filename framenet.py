@@ -1,6 +1,6 @@
 
 import xml.etree.ElementTree as ET
-
+#from webbrowser import open as wbopen
 
 ##------------
 
@@ -52,6 +52,7 @@ def sort_verbs_to_frames(thresh=0):
 
 ##----------
 
+# XML is ugly when it isn't styled, but I have a few ideas
 def print_frame_info_via_frameID(frameID):
     #pull data from XML file?
     fname = fnframes[frameID]
