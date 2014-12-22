@@ -229,17 +229,16 @@ frame $f$; that is, $\tilde c(d_i, f) = \tilde c(f, w_{ij}^v)$.}
 \section{Dataset - Verbargs}
 \label{data}
 
-Verbargs is the subset of Google's syntactic-ngram corpus for training our 
-models and evaluating the reults 
 A syntactic-ngram is a $k$-word rooted subtree of some sentence.
-The ngrams in Google's corpus were extracted from 3.5 million books and are labled with
-Penn Treebank part-of-speech tags Stanford-basic dependency lables \citep{ngrams2013}.
+Google syntactic-ngrams is a corpus of ngrams extracted from 3.5 million English language 
+books and labled with Penn Treebank part-of-speech tags Stanford-basic dependency 
+lables \citep{ngrams2013}.
 Each ngram also includes frequency counts by year.
-In this project, used the 
 
-The ngrams in the verbargs dataset (130M items) consist of a verb and all of its 
+This project uses the verbargs subeset (130M items) of Google syntactic-ngrams.
+An ngram in the verbargs dataset consist of a verb and all of its 
 immediate arguments.
-From this dataset, we consider only VSO's, that is; we pruned verbargs to only
+We considered only the VSO's in this dataset, that is; we pruned verbargs to
 those ngrams containing a subject (nsubj) and object (dobj) whose immediate parent
 is the ngram's root verb (1.6M items, 96M by count). 
 We further trimmed the data to consider only the \%25 most common verbs 
@@ -271,17 +270,17 @@ Frame correctness: for the top 25 most probable verbs per frame $TV$ and framene
 
 \section{Future Work}
 One big weakness of this project over the results of \citet{oconnor2013} is that 
-we could not used document-level context to leverage semantic information.
+we could not used document-level context to infer semantic information.
 A possible direction of future reseach is to create models that take better 
 advantage of the syntax-level context provided by syntactic ngrams. 
 One easy way to do this would be to modify model 1 so that the argument 
 vocabulary ranges over subject/object pairs instead of individual nouns.
 or object.
-More advanced models would take better advantage of the various kinds of arguments
-in verbargs and their relation to one another.
-For example, you might be gleen some semantic information about the relationship between
-verbs and prepositional objects by the preposition that mediates them: 
-That you ''swim \emph{in} the lake'' versus ``ice skate \emph{on} the lake'' 
+More advanced models might take better advantage of the various kinds of arguments
+in the verbargs dataset and their relation to one another.
+For example, you could be gleen some semantic information about the relationship between
+verbs and prepositional objects by looking at the preposition that mediates them: 
+That you ''swim \emph{in} a lake'' versus ``ice skate \emph{on} a lake'' 
 indicates that the relationship between swimming and lakes is different from the one between
 ice skating and lakes.
 
