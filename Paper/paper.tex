@@ -199,8 +199,8 @@ We prefer not to consider the subject and object vocabularies independently
 since in principle, a noun playing a particlar semantic role may appear in either 
 syntactic position.
 
-Dropping terms not dependent on counts, we can calculate the probability 
-required for Gibbs sampling as follows:
+Dropping terms not dependent on counts, we can calculate the proportional
+probability required for Gibbs sampling as follows:
 
 \begin{align}
 & P(f_{ij} = f|\mathbf{f}_{-ij},\mathbf{w}, \alpha,\beta)\nonumber\\
@@ -208,15 +208,15 @@ required for Gibbs sampling as follows:
 \times \prod_a^{\{v,s,o\}}\frac{\beta+\tilde c(f,w_{ij}^a)}{V^a\beta+\tilde c(f)}
 \end{align}
 
-Where $\tilde c (d_i, f)$ is the number of VSO's in document $d_i$ assigned to frame $f$,
-$\tilde c(d_i)$ is the number of VSO's in document $i$,
+Where $\tilde c (d_i, f)$ is the number of VSO's in document $d_i$ assigned to frame $f$;
+$\tilde c(d_i)$ is the number of VSO's in document $i$;
 $\tilde c(f,w_{ij}^a)$ is the number of VSOs containing $w_{ij}^a$ as argument $a$ that are
-assigned to frame $f$, and
+assigned to frame $f$; and
 $\tilde c(f)$ is the number of VSOs assigned to frame $f$.
 Note that $\tilde c$ indicates a count that does not consider the contribution of 
-VSO $w_{i,j}$.
+$w_{i,j}$.
 
-We will see that the data used in this probject doesn't contain any document-level
+The data used in this probject (see section \ref{data}) doesn't contain any document-level
 information. As a result, we adapt model 1 by grouping VSOs with the same verb into ``documents''.
 This move leverages the dirichlet prior $\alpha$ to enforce sparcity of frames 
 accross verbs, but of course cannot capture the information given by the kind of
@@ -226,19 +226,25 @@ documents (i.e, $D = V^v$), since $w_{ij}^v$ is the same for all verbs in docume
 $d_i$ belonging to frame $f$ is the same as the number of VSO's with $w_{ij}^v$ as their verb assigned to 
 frame $f$; that is, $\tilde c(d_i, f) = \tilde c(f, w_{ij}^v)$.}
 
-\section{Data}
+\section{Dataset - Verbargs}
+\label{data}
 
-\subsection{Google Syntactic-ngrams}
-Here we talk a bit about the syntactic n-grams and all that \citep{ngrams2013}.
-\begin{itemize}
-    \item A syntactic-ngram is a $k$-word rooted subtree for some sentence. 
-    \item Google ngrams come from a corpus of 3.5 million English books.
-    \item We trimmed the ``verb args'' dataset to consider only subject-verb-object triples (VSO's).
-    \item The dataset contains 1,629,120 unique VSO's with a total of 96,245,401 by count.
-    \item In our final results we may only use the most common \%20 of these...
-\end{itemize}
+Verbargs is the subset of Google's syntactic-ngram corpus for training our 
+models and evaluating the reults 
+A syntactic-ngram is a $k$-word rooted subtree of some sentence.
+The ngrams in Google's corpus were extracted from 3.5 million books and are labled with
+Penn Treebank part-of-speech tags Stanford-basic dependency lables \citep{ngrams2013}.
+Each ngram also includes frequency counts by year.
+In this project, used the 
 
-\subsection{Pruning}
+The ngrams in the verbargs dataset (130M items) consist of a verb and all of its 
+immediate arguments.
+From this dataset, we consider only VSO's, that is; we pruned verbargs to only
+those ngrams containing a subject (nsubj) and object (dobj) whose immediate parent
+is the ngram's root verb (1.6M items, 96M by count). 
+We further trimmed the data to consider only the \%25 most common verbs 
+(800K items, 78M by count).
+
 
 
 \section{Experiments}
@@ -257,12 +263,20 @@ Frame correctness: for the top 25 most probable verbs per frame $TV$ and framene
 
 
 \section{Future Work}
-\begin{itemize}
-\item Come up with models that are specifically for independent tuples.
-\item Use more of the arguments in verbargs.
-\item Use year information -- do frames change over time?
-\item Consider subjet/object pairs instead of independent.
-\end{itemize}
+One big weakness of this project over the results of \citet{oconnor2013} is that 
+we could not used document-level context to leverage semantic information.
+A possible direction of future reseach is to create models that take better 
+advantage of the syntax-level context provided by syntactic ngrams. 
+One easy way to do this would be to modify model 1 so that the argument 
+vocabulary ranges over subject/object pairs instead of individual nouns.
+or object.
+More advanced models would take better advantage of the various kinds of arguments
+in verbargs and their relation to one another.
+For example, you might be gleen some semantic information about the relationship between
+verbs and prepositional objects by the preposition that mediates them: 
+That you ''swim \emph{in} the lake'' versus ``ice skate \emph{on} the lake'' 
+indicates that the relationship between swimming and lakes is different from the one between
+ice skating and lakes.
 
 \section{Conclusion}
 
