@@ -1,7 +1,8 @@
 import numpy as np
-import model0 as mod0
+import dicesim
 import random as rnd
 import matplotlib.pyplot as pp
+
 
 args = ('v','s','o')
 
@@ -39,17 +40,20 @@ def show_most_common(frame_dists_v, frame_dists_w, top=25):
             j += 1
         print()
 
-
+# frame_coherency: calculates the maximal probability of a tuple and compares it with
+# the maximal probability on the model of same tuple in which the verb is replaced by a random verb
 def frame_coherency(model, data):
 
-    # trained model
+    # determine which model to evaluate 
     if len(model) == 3:
         (frame_dists, frame_assign, theta) = model
         M = 0
+    #if model1: set `frame_assign'
     elif len(model) == 2:
         (verb_dists, word_dists) = model
         frame_assign  =  {(v,s,o): np.argmax([verb_dists[f][v]*word_dists[f][s]*word_dists[f][o] for f in verb_dists],axis=0) for (v,s,o) in data}
         M = 1
+        
     # initialize variables
     total = 0            # actual number of tested examples (unique entries in model * counts)
     coh = 0              # number of tuples with higher probability on model than with random verb
@@ -70,11 +74,13 @@ def frame_coherency(model, data):
         #verbDists = {f: {index_to_verb[i]: verbDists[i][f] for i in range(V)} for f in range(F)}
 
     # initialize tuples with verb replaced by random verb
+    #     first: list all verbs ( with repitition )
     verbs = []
     for (v,s,o) in data.keys():
         for i in range(data[(v,s,o)]):
             verbs.append(v)
 
+    # second: create tuples with some random verb
     tstD = [(rnd.choice(verbs), vso[0], vso[1], vso[2]) for vso in data]
 
     # calculate max probability of tuple with random verb on model
@@ -88,12 +94,13 @@ def frame_coherency(model, data):
          else:
              probsR.append(0)
 
-
+# ----------- other possibilities for probabilities of tuples with random verb
     #probsR = [frame_dists[ frame_assign[(rV,s,o)]]['v'][rV]*frame_dists[frame_assign[(rV,s,o)]]['s'][s]*frame_dists[frame_assign[(rV,s,o)]]['o'][o]*theta[frame_assign[(rV,s,o)]] for (rV,v,s,o) in tstD]
     #probsR = [np.argmax([frame_dists[frm]['v'][rV]*frame_dists[frm]['s'][s]*frame_dists[frm]['o'][o]*theta[frm] for frm in frame_dists]) for (rV,s,o) in tstD]
-        
+# ----------------------------------------------------------------------------
+
+    # summations of datapoints to calculate percentage of higher scoring datapoints 
     for i in range(N):
-        #(v,s,o) = dataList[i]
         c = data[(v,s,o)]
         total += c
         if probs[i] > probsR[i]:
@@ -101,15 +108,34 @@ def frame_coherency(model, data):
       
     return (coh/total)
 
+# calculate average dicesim score of model
+#     use verbs per frame which have probability higher than `cutOffP'
+#     use max `fn_threshold' per frame verbs from framenet 
+def frame_accuracy(verb_dists,cutOffP,fn_threshold): 
 
-def top_verbs( x , model, N ):
+    # build list of lists of verbs that are assigned to a frame
+    mod_sets = []
+    for frm in verb_dists:
+        modS = []
+        for verb in verb_dists[frm]:
+            if verb_dists[frm][verb] > cutOffP:
+                modS.append(verb)
+        mod_sets.append(modS)
+        
+    # retrieve lists of framenet verbs
+    fn_sets = dicesim.framenet.sort_verbs_to_frames(fn_threshold)
 
-    nrOfFrms = len(frame_dists)
-    if x == 0:
-        (frame_assign, frame_dists, theta) = model
-        topVs = {frm: [(_,v) for t in [ frame_dists[frm]['v'][:N ] for frm in range(nrOfFrms)]]}
+    # calculate and return average dicesim score (over frames) for this model
+    best = 0
+    tot = 0
+    for modS in mod_sets:
+        for fnS in fn_sets:
+            modS = set(modS)
+            fnS = set(fnS)
+            cur = (( 2 * len(modS & fnS) ) / ( len(modS) + len(fnS) ))
+            if cur > best:
+                best = cur
+        tot += best
 
+    return tot/len(mod_sets)
 
-    return topVs
-            
-                

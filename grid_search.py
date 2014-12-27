@@ -22,10 +22,10 @@ def test():
     for f in frames:
         for a in alphas:
             model = model0.em(f,a,trnData)
-            res_M0[(f,a)] = (evaluation.frame_coherency(model,xvData),0)#evaluation.frame_accuracy(model))
+            res_M0[(f,a)] = (evaluation.frame_coherency(model,xvData),evaluation.frame_accuracy(verb_dists(model), .01, 50 ))
             for b in betas:
-                model = model1.gibbs(f,a,b,10, 1, trnData)
-                res_M1[(f,a,b)] = (evaluation.frame_coherency(model,xvData),0)#evaluation.frame_accuracy(model))
+                model = model1.gibbs(f,a,b,2, 1, trnData)
+                res_M1[(f,a,b)] = (evaluation.frame_coherency(model,xvData),evaluation.frame_accuracy(model[0], .01, 50 ))
 
     metrics = ['coh','acc','both']
     i=0
@@ -61,5 +61,11 @@ def select_best(resultsXV):
 pool = multiprocessing.Pool(4)
 out1, out2, out3 = zip(*pool.map(calc_stuff, range(0, 10 * offset, offset)))
 '''
+
+def verb_dists(model):
+    dists = model[0]
+    verb_dists = {frm: dists[frm]['v'] for frm in dists}
+
+    return verb_dists
 
 test()
