@@ -15,14 +15,14 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 
 \author{
-    Verdegaal, Jacob\\
-    \texttt{jacob.verdegaal@student.uva.nl}
+    Noble, Bill\\
+    \texttt{winobes@gmail.com}
     \and
     Drumm, Eli T.\\
     \texttt{etd@dte.li}
     \and
-    Noble, Bill\\
-    \texttt{winobes@gmail.com}
+    Verdegaal, Jacob\\
+    \texttt{jacob.verdegaal@student.uva.nl}
 }
 
 \title{Inducing Semantic Frames on a Very Large Corpus of Syntactic-Ngrams}
@@ -31,19 +31,34 @@
 
 \maketitle
 
-
 \section{Introduction}
-Here we provide some background information about what are semantic frames and 
-what it menas to induce them and stuff like that.
+When a machine looks at the sentence \textit{'Alice buys a bread from the baker'} it does not know it descibes the exact same situation as \textit{`The baker sells Alice a bread'}. But for a lot of applications it is usefull to have semantic representations of senteces or groups of sentences. For example in automatic summarization, some sentences are repaeated with different word choices and orders to express nuances, but since nuances can be left out in summarizations it would be usefull to have techniques to represent and generate semantic content. 
 
+The Framenet project \citep{framenet} is ongoing on defining frames manually which could be mapped on a text to extrct frames. But with the increasing amount of digital information it is usefull to have auomatic semantic frame induction. For example for automatic stock trading systems, it would be usefull to know what is published about companies that are traded on. 
 
-\section{Related Work}
-Here we talk mostly about the O'Connor paper \citep{oconnor2013} and the Rooth 
-paper \citep{rooth1999}.
+Semantic content of texts can be represented in frames, where the head of the frame represents the core of the episode and roles in the frame espress involement of things or people, location, time etc. For the sentences above the frame would look like this:\\
+
+\begin{tabular}{|l l|}
+  \hline
+  \textit{\small predicate:\normalsize}&Transaction\\
+  \hline
+  \hline
+  \textit{\small role 1:\normalsize} &baker\\
+  \textit{\small role 2:\normalsize} &Alice\\
+  \textit{\small role 3:\normalsize} &bread\\
+  \hline
+\end{tabular}\\
+
+The head of the frame, representing the core of the episode, can naturally be represented as a predicate but the trick is to find out which words have which roles. In linguistics this is called case grammar \citep{dowty1991}. As the example above shows, the roles are represented by different syntactic parts of speech in both sentences, the object and subject are switched, furthermore, the verbs are different. But even with knowledge of specific vebrs which bear the same meaning with switched subject/indirect-object, we need to have technology to let machines generate semantics next to syntacs in order to let machines be able to ( do as if they ) understand language and process new text in a meaningfull way. Hence, automatic semantic analysis and representation is required.\\ 
+
+In this project we investigate wheter probabalistic latent-variable models can cluster verbs (as being a predicate) based on their meaning, which is inferred from the occurences of arguments it is encountered with. The clusters then make up the broader meaning of the predicates. The data we use contains triples of verb-subject-object (see section\ref{data}), so induced frames contain only two roles. The models (described in section \ref{models}) induce frames based on the assumption the meaning of a verb relative to meaning of other verbs can be induced from its context. Hence the broader meaning is latent. To evaluate our models we use two metrics, one of which uses framenet data, the other to check wheter the resulting frames are coherent. See section \ref{results} for more detail.
+
+%\section{Related Work}
+We based our work on two papers: \textit{`Inducing a semantically annotated lexicon via em-based clustering.'} by \citeauthor{rooth1999} and \textit{`Learning frames from text with an unsupervised latent variable model.'} by \citeauthor{oconnor2013}. In the first article clustering is realized by applying expectation maximalization on a simple model. This model produces frames in the form of 3 distributions, one for the predicate and two for the arguments. Frame assignement is result of calculating  probabilities for a given tuple, the frame that gives the highest probaility is then the assigned. We will use this model as our baseline (as in the O'Connor paper). The second paper covers multliple models of which we implemented one. The difference with the baseline model is the assumption that a document uses a set of frames repeatedly as a rsult of a document having a (couple of) topics. In our data the tuples are not annotated with documents so we used this assumption in such a way that each verb covers one document.  
 
 
 \section{Induction Models}
-
+\label{models}
 We consider two probabalistic latent-variable models that learn semantic frames
 from verb-subject-object tripples (VSO's).
 The goal of these models is to use th syntactic information give by a VSO to
@@ -247,9 +262,12 @@ We further trimmed the data to consider only the \%25 most common verbs
 
 
 \section{Experiments}
+The number of frames in both models must be determined before induction. When choosing for a low number of frames the clusters will be big and thus the meaning of a cluster vague. But a high number of frames has, next to high computational costs also a danger of overfitting the data. When unrelated verbs occur with the same arguments often they will be clustered and maybe will even make up one cluster, while with a lower number of frames other verbs would be included, diinishing one of the unrelated verbs as noise.
 
+The alphas and betas are known \citep{oconnor2013} to be hard to determine, and therefore need experiments to be set to optimal values for a specific problem. We used, expensive but easy to implement, grid search to determine all parameters to test with. With grid-search a model is build with certain parameters, this model is then evaluated on a cross validation set. When all possible models are evaluated the highest scoring model is tested on. 
 
 \section{Results}
+\label{results}
 \subsection{Frame Coherency}
 rame coherency: for a datapoint $(v,s,o)$ and a tuple $(v^r,s,o)$ where $v^r$ is a random choses verb: $P(v\mid s,o) \geq P(v^r\mid s,o)$  
 \subsection{Frame Correctness}

@@ -1,4 +1,5 @@
 
+import string
 from operator import itemgetter
 import pickle
 
@@ -7,6 +8,7 @@ import framenet
 ##------------
 
 def dicesim(A, B):
+    # [make sure A,B aren't sets already?]
     A = set(A)
     B = set(B)
     return (( 2 * len(A & B) ) / ( len(A) + len(B) ))
@@ -28,17 +30,6 @@ def dicescores(model_frameverbs, fn_frameverbs):
     return frame_matches
 
 
-# this is currently unreadably formatted but I'm working on it
-# def print_dice_table(frame_matches):
-#     print('_______|')
-    
-#     for f in frame_matches:
-#         print(' '.join([f.rjust(6),'|']+[str(round(frame_matches[f][m],4)).rjust(5) for m in frame_matches[f]]))
-#         print('       |')
-        
-        
-
-
 # outputs {FN frameID f: (ID of best Dice-matched frame m, dicesim(f, m))}
 def dice_maxmatch(model_frameverbs, fn_frameverbs):
     dicedict = dicescores(model_frameverbs, fn_frameverbs)
@@ -53,10 +44,14 @@ def dice_maxmatch(model_frameverbs, fn_frameverbs):
     return fn_bestmatches
 
 
+##------------------------
 
+# DICE_SCORESHEET = {f: {v: dicesim(f,v)}}
+# DICEMAX = {f: (v, dicesim(f,v))}
 
-##------------
-
+# VERBDISTS = {f: {v: p}}
+# VERBFREQS = {f: [(v, p)] sorted}
+# VERB_ROSTER = {f: [v]}
 
 
 # modeled on evaluation.frames_by_frequency
@@ -69,8 +64,6 @@ def frame_freqsort(verbdists):
     return verbfreqs
 
 
-
-
 def verbmembers_topN(verbfreqs, N):
     verb_rosters = dict.fromkeys(verbfreqs)
     for f in verbfreqs:
@@ -78,8 +71,8 @@ def verbmembers_topN(verbfreqs, N):
         
     return verb_rosters
 
+
 def verbmembers_cutoffprob(verbfreqs, q):
-#   ig1 = itemgetter(1)
     verb_rosters = dict.fromkeys(verbfreqs)
     for f in verbfreqs:
         verb_rosters[f] = list()
@@ -91,32 +84,10 @@ def verbmembers_cutoffprob(verbfreqs, q):
     return verb_rosters
 
 
-def roster_to_verblist(verb_roster):
-    return [i[0] for i in verb_roster]
-
-def rosters_to_verblists(verb_rosters):
-    return {f: roster_to_verblist(verb_rosters[f]) for f in verb_rosters}
+##------------------------
 
 
-
-
-
-##------------------------##------------------------##
-## ..and now to actually run the thing
-## (should extract some of this to a wrapper, probably)
-
-sample_filename = 'sample_m1_F50_alpha0.5_beta0.5_T500burnIn50.pkl'
-fn_threshold = 5
-model_verb_membership_criterion = 'cutoffprob'
-#model_verb_membership_criterion = 'topN'
-mvmc_topN = 4
-mvmc_cutoffprob = .01
-
-
-#print_dice_results(dice_results):
-
-
-def run_dicesim():
+def run_dicesim(sample_filename, mvmc, mvmc_param, fn_threshold):
 
     # open and unpickle the specified sample data
     model_dists = pickle.load(open(sample_filename, 'rb'))
@@ -128,10 +99,10 @@ def run_dicesim():
     # for each frame f, remove entries from f's sorted [(verb, prob)] list
     #   that do not belong to f according to the specified criterion;
     #   output {frame: [verbs]}
-    if model_verb_membership_criterion == 'cutoffprob':
-        model_frameverbs = verbmembers_cutoffprob(model_verbfreqs, mvmc_cutoffprob)
+    if mvmc == 'cutoffprob':
+        model_frameverbs = verbmembers_cutoffprob(model_verbfreqs, mvmc_param)
     else:
-        model_frameverbs = verbmembers_topN(model_verbfreqs, mvmc_topN)
+        model_frameverbs = verbmembers_topN(model_verbfreqs, mvmc_param)
         
     # retrieve the analogous {frame: [verbs]} dict computed by the framenet module
     fn_frameverbs = framenet.sort_verbs_to_frames(fn_threshold)
@@ -145,28 +116,52 @@ def run_dicesim():
     return (dice_scoresheet, dice_results)
 
 
-    
+
 ##------------------------
+## This section not working yet, sorry for the mess
 
+
+def compare_verblists(f0, f1):
+    f0 = set(f0)
+    f1 = set(f1)
+    return (f0 & f1, f0 - f1, f1 - f0)
+
+def print_verblist_comparison(f0, f1):
+    inboth, f0only, f1only = compare_verblists(f0, f1)
+
+    print('Shared verbs:',*inboth)
+    print('Only in first frame:',*f0only)
+    print('Only in second frame:',*f1only)
+
+
+# this is currently unreadably formatted but I'm working on it
+#def print_dice_table(frame_matches):
+#     print('_______|')
+#    tbfrmt = '{:>4}
+#     for f in frame_matches:
+#         print(' '.join([f.rjust(6),'|']+[str(round(frame_matches[f][m],4)).rjust(5) for m in frame_matches[f]]))
+#         print('       |')
+        
+   
+
+#def compile_report(verbfreqs, model_frameverbs, scoresheet, dice_results):
+
+#    matchlist = [(f, dice_results[f][0]) for f in dice_results]
     
-    # todo:
-    #   - experiment with the "model_verb_membership_criterion" and its params
-    #   - print output/scores informatively
-    #   - integrate framenet info into output
-    #   - restructure these code files better
-    #   - rename some variables and functions for clarity
-    #   - some other stuff
-
-    # potentially:
-    #   - modify the framenet interface code so labels are ints, not 'int's
-    #   - use sets instead of lists in some places
-
-    # questions:
-    #   - what does the distribution of dicesim scores for a fixed FN frame
-    #     over all of our model's frames look like? Is there a lot of verb-overlap
-    #     between the different frames induced by our own model?
+    # quick statistics about distributions of
+    #     (1) model,
+    #     (2) dice scores (the whole scoresheet),
+    #     (3) ultimate FN assignments for model-induced frames, ...
     
+    # Features/stats of avg FN vs model-induced frames
 
 
+    # 'Venn comparison' a la O'Connor
 
+###    for (
     
+###    return report
+
+
+# dice-measure induced frames with other frames from the same model.
+#   what could this tell us? what would be a 'healthy' self-dice?
