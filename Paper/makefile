@@ -1,3 +1,11 @@
+paperN.pdf: paperN.tex
+	pdflatex -output-fromat=pdf paperN.tex
+	bibtex paperN.aux
+	pdflatex -output-format=pdf paperN.tex 
+	pdflatex -output-format=pdf paperN.tex 
+
+
+
 paper.pdf: paper.tex
 	pdflatex -output-fromat=pdf paper.tex
 	bibtex paper.aux
