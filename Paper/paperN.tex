@@ -3,6 +3,7 @@
 \usepackage{nips14submit_e,times}
 \usepackage{hyperref}
 \usepackage{url}
+\usepackage{subcaption}
 
 \usepackage{amsmath}
 \usepackage{framed}
@@ -65,6 +66,8 @@ The Framenet project \citep{framenet} is ongoing on defining frames manually whi
 
 Semantic content of texts can be represented in frames, where the head of the frame represents the core of the episode and roles in the frame espress involement of things or people, location, time etc. For the sentences above the frame would look like this:\\
 
+\begin{table}[h]
+\centering
 \begin{tabular}{|l l|}
   \hline
   \textit{\small predicate:\normalsize}&Transaction\\
@@ -74,7 +77,8 @@ Semantic content of texts can be represented in frames, where the head of the fr
   \textit{\small role 2:\normalsize} &Alice\\
   \textit{\small role 3:\normalsize} &bread\\
   \hline
-\end{tabular}\\
+\end{tabular}
+\end{table}
 
 The head of the frame, representing the core of the episode, can naturally be represented as a predicate but the trick is to find out which words have which roles. In linguistics this is called case grammar \citep{dowty1991}. As the example above shows, the roles are represented by different syntactic parts of speech in both sentences, the object and subject are switched, furthermore, the verbs are different. But even with knowledge of specific vebrs which bear the same meaning with switched subject/indirect-object, we need to have technology to let machines generate semantics next to syntacs in order to let machines be able to ( do as if they ) understand language and process new text in a meaningfull way. Hence, automatic semantic analysis and representation is required.\\ 
 
@@ -91,14 +95,10 @@ from verb-subject-object tripples (VSO's).
 The goal of these models is to use th syntactic information give by a VSO to
 infer what kind of event it describes (i.e., to which semantic frame it belongs).
 
-\subsection{Model 0}
 
-The approach models each VSO independenly, without considering any further context.
-Word distributions are completely independent between arguments and accross frames.
-Tuples are clustered according to which frame's three distributions best fit the 
-three arguments.
+\begin{figure}[h]
 
-\begin{figure}
+  \begin{subfigure}[b]{0.45\textwidth}
 
     \begin{snugshade}
     \scriptsize
@@ -111,10 +111,46 @@ three arguments.
 
     \input{model0plate.tex}
 
-    \caption{Model 0 generative story}
+    \caption{Model 0}
     \label{gen0}
 
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+
+    \begin{snugshade}
+    \scriptsize
+    For each frame $f=1..F$:\\
+    \hspace*{15pt} For each argument $a\in\{v,s,o\}$:\\
+    \hspace*{30pt} Draw a distribution $\phi_f^a\sim Dirichlet(\beta)$\\
+    For each document $d=1..D$:\\
+    \hspace*{15pt} Draw a distrbution $\theta_d \sim Dirichlet(\alpha)$\\
+    \hspace*{30pt} For each $i = 1..N^d$:\\
+    \hspace*{30pt} Draw a frame $f \sim \theta^d$.\\
+    \hspace*{30pt} Draw a verb $v \sim \phi_f^v$\\
+    \hspace*{30pt} Draw a subject $s \sim \phi_f^s$\\
+    \hspace*{30pt} Draw an object $o \sim \phi_f^o$
+    \end{snugshade}
+
+    \input{model1plate.tex}
+
+    \caption{Model 1}
+    \label{gen1}
+
+  \end{subfigure}
+
+  \caption{Generative Stories}
+
 \end{figure}
+
+
+
+\subsection{Model 0}
+
+The approach models each VSO independenly, without considering any further context.
+Word distributions are completely independent between arguments and accross frames.
+Tuples are clustered according to which frame's three distributions best fit the 
+three arguments.
 
 Model 0 is based on one originally proposed in \citet{rooth1999}, which 
 considers noun-verb pairs. Following \citet{oconnor2013}, we expand the model
@@ -122,8 +158,8 @@ to use the limited syntax of VSOs.
 
 The generative story (figure \ref{gen0}) gives us the following joint probability:
 \begin{align*}
-&P(\mathbf{f},\mathbf{w}|\phi,\theta) 
-  = P(\mathbf{f}|\theta)P(\mathbf{w}|\phi)\\
+P(\mathbf{f},\mathbf{w}|\phi,\theta) 
+  =& P(\mathbf{f}|\theta)P(\mathbf{w}|\phi)\\
   =& \prod_{i=1}^{N}\big[\theta(f_i) \prod_a^{\{v,s,o\}}\phi_{f_i}^a(w_i^a)\big]
 \end{align*}
 
@@ -147,10 +183,10 @@ Then in the M-step, we find $\theta$ and $\phi$ that maximize the expectation of
 the complete likelihood. In particular, we want to maximize
 
 \begin{align*}
-&E_\mu\big[\sum_{i=1}^N\log P(w_i,f_i|\theta,\phi) =\\
+E_\mu\big[\sum_{i=1}^N\log P(w_i,f_i|\theta,\phi)
 =& \sum_{i=1}^N\sum_{f=1}^F\mu_i(f)\log\Big[\theta(f)\prod_a^{\{v,s,o\}}\phi_f^a(w_i^a)\Big]\\
-=& \sum_{i=1}^N\sum_{f=1}^F\mu_i(f)\log\theta(f)\\
-+& \sum_a^{\{v,s,o\}} \sum_{i=1}^N\sum_{f=1}^F\mu_i(f)\log \phi_f^a(w_i^a)
+=& \sum_{i=1}^N\sum_{f=1}^F\mu_i(f)\log\theta(f)
++ \sum_a^{\{v,s,o\}} \sum_{i=1}^N\sum_{f=1}^F\mu_i(f)\log \phi_f^a(w_i^a)
 \end{align*}
 
 Thus the problem is reduced to maximizing each of the terms in the sum above. Fortunately
@@ -158,15 +194,15 @@ these have closed for solutions using Lagrangian multipliers.
 
 
 \begin{align}
-&\argmax_{\theta(f)}\sum_{i=1}^N\sum_{f=1}^F\mu_i(f)\log\theta(f)\nonumber\\
-&= \frac{\sum_{i=1}^N\mu_i(f)}{\sum_{f'}^F\sum_{i=1}^N\mu_i(f)}
+\argmax_{\theta(f)}\sum_{i=1}^N\sum_{f=1}^F\mu_i(f)\log\theta(f)
+= \frac{\sum_{i=1}^N\mu_i(f)}{\sum_{f'}^F\sum_{i=1}^N\mu_i(f)}
 \end{align}
 
 and
 
 \begin{align}
-&\argmax_{\phi^a(w)}\sum_{i=1}^N\sum_{f=1}^F\mu_i(f)\log \phi_f^a(w_i,a)\nonumber\\
-&= \frac{\sum_{i=1}^N \mu_i(f)\,c(w^a)}{\sum_{w'=1}^{V^a}\sum_{i=1}^N \mu_i(f)\,c(w',a)}
+\argmax_{\phi^a(w)}\sum_{i=1}^N\sum_{f=1}^F\mu_i(f)\log \phi_f^a(w_i,a)
+= \frac{\sum_{i=1}^N \mu_i(f)\,c(w^a)}{\sum_{w'=1}^{V^a}\sum_{i=1}^N \mu_i(f)\,c(w',a)}
 \end{align}
 
 Where $c(w,a)$ indicates the number of times word $w$ is observed as argument $a$.
@@ -183,34 +219,11 @@ sparsity is enforced by a dirichlet prior on frame distributions (see figure
 \ref{gen1} for details). This assumption breaks the independence between tuples 
 that is maintained by Model 0 is dropped in Model 1.
 
-\begin{figure}
-
-    \begin{snugshade}
-    \scriptsize
-    For each frame $f=1..F$:\\
-    \hspace*{15pt} For each argument $a\in\{v,s,o\}$:\\
-    \hspace*{30pt} Draw a distribution $\phi_f^a\sim Dirichlet(\beta)$\\
-    For each document $d=1..D$:\\
-    \hspace*{15pt} Draw a distrbution $\theta_d \sim Dirichlet(\alpha)$\\
-    \hspace*{30pt} For each $i = 1..N^d$:\\
-    \hspace*{30pt} Draw a frame $f \sim \theta^d$.\\
-    \hspace*{30pt} Draw a verb $v \sim \phi_f^v$\\
-    \hspace*{30pt} Draw a subject $s \sim \phi_f^s$\\
-    \hspace*{30pt} Draw an object $o \sim \phi_f^o$
-    \end{snugshade}
-
-    \input{model1plate.tex}
-
-    \caption{Model 1 generative story}
-    \label{gen1}
-
-\end{figure}
-
 The independence assumptions in the generative story for model 1 give us the 
 following joint distribution:
 
 \begin{align*}
-&P(\mathbf{w},\mathbf{f}|\theta,\phi,\alpha,\beta)\\
+P(\mathbf{w},\mathbf{f}|\theta,\phi,\alpha,\beta)
 &=P(\mathbf{w}|\mathbf{f},\phi)\,P(\mathbf{f}|\theta)\,P(\theta|\alpha)\,P(\phi|\beta)
 \end{align*}
 
@@ -218,23 +231,14 @@ We can find the marginal distribution of the latent and observed variables by
 integrating over the priors:
 
 \begin{align*}
-& P(\mathbf{w},\mathbf{f}|\alpha,\beta)\\
+ P(\mathbf{w},\mathbf{f}|\alpha,\beta)
 &=\int_\phi\int_\theta P(\mathbf{w},\mathbf{f}|\theta,\phi,\alpha,\beta)\\
 &=     \int_\phi P(\mathbf{w}|\mathbf{f},\phi )\,P(\phi|\beta)
-\times \int_\theta P(\mathbf{f}|\theta)\,P(\theta|\alpha)
-\end{align*}
-
-These integrals are both dirichlet multinomials:
-
-\[
-\frac{DCM_i^{frames}(f_{ij}=f, \mathbf{f}_{-ij})}{DCM_i^{frames}(\mathbf{f}_{-ij})}
-\]
-
-and
-
-\[
+\times \int_\theta P(\mathbf{f}|\theta)\,P(\theta|\alpha)\\
+\intertext{These integrals are both dirichlet multinomials:}
+&=\frac{DCM_i^{frames}(f_{ij}=f, \mathbf{f}_{-ij})}{DCM_i^{frames}(\mathbf{f}_{-ij})}\times
 \prod_a^{\{v,s,o\}}\frac{DCM_i^{vocab^a}(f_{ij}=f, \mathbf{f}_{-ij})}{DCM_i^{vocab^a}(\mathbf{f}_{-ij})}
-\]
+\end{align*}
 
 We prefer not to consider the subject and object vocabularies independently 
 (i.e., $V^s = V^o$). This is more in line with the theory of semantic frames 
@@ -245,7 +249,7 @@ Dropping terms not dependent on counts, we can calculate the proportional
 probability required for Gibbs sampling as follows:
 
 \begin{align}
-& P(f_{ij} = f|\mathbf{f}_{-ij},\mathbf{w}, \alpha,\beta)\nonumber\\
+P(f_{ij} = f|\mathbf{f}_{-ij},\mathbf{w}, \alpha,\beta)
 &=\frac{\alpha + \tilde c(d_i,f)}{F\,\alpha + \tilde c(d_i)}
 \times \prod_a^{\{v,s,o\}}\frac{\beta+\tilde c(f,w_{ij}^a)}{V^a\beta+\tilde c(f)}
 \end{align}
