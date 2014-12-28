@@ -129,7 +129,7 @@ def frame_accuracy(verb_dists,cutOffP,fn_threshold):
     best = 0
     tot = 0
     for modS in mod_sets:
-        for fnS in fn_sets:
+        for fnS in fn_sets.values():
             modS = set(modS)
             fnS = set(fnS)
             cur = (( 2 * len(modS & fnS) ) / ( len(modS) + len(fnS) ))
