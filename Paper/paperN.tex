@@ -4,7 +4,7 @@
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{subcaption}
-
+\usepackage{wrapfig}
 \usepackage{amsmath}
 \usepackage{framed}
 \usepackage{color}
@@ -60,14 +60,12 @@ paragraph.
 \end{abstract}
 
 \section{Introduction}
-When a machine looks at the sentence \textit{'Alice buys a bread from the baker'} it does not know it descibes the exact same situation as \textit{`The baker sells Alice a bread'}. But for a lot of applications it is usefull to have semantic representations of senteces or groups of sentences. For example in automatic summarization, some sentences are repaeated with different word choices and orders to express nuances, but since nuances can be left out in summarizations it would be usefull to have techniques to represent and generate semantic content. 
+The growing number of digital publications contains so much information that a single human being cannot process all this text, its even hard to keep up to date on a particular topic. It would be usefull to have technology that can create reliable summarizations. But not only quantity of information asks for such technology. For example for automatic stock trading systems, it would be usefull to know what is published about companies that are traded on the moment of publication.
 
-The Framenet project \citep{framenet} is ongoing on defining frames manually which could be mapped on a text to extrct frames. But with the increasing amount of digital information it is usefull to have auomatic semantic frame induction. For example for automatic stock trading systems, it would be usefull to know what is published about companies that are traded on. 
-
-Semantic content of texts can be represented in frames, where the head of the frame represents the core of the episode and roles in the frame espress involement of things or people, location, time etc. For the sentences above the frame would look like this:\\
-
-\begin{table}[h]
-\centering
+The problem can be illustrated with a simple example: \textit{'Alice buys a bread from the baker'} descibes the exact same situation as \textit{`The baker sells Alice a bread'}. Thus the semantic content of these sentences can be represented in one frame, where the head of the frame represents the core of the episode or situation and involvement is expressed by assigning roles to things or people. In general these roles can be anything like location, time, manner etc. For the sentences above the frame is depicted in \ref{framex}.
+\begin{wraptable}{r}{.3\textwidth}
+  \centering
+ % \begin{table}
 \begin{tabular}{|l l|}
   \hline
   \textit{\small predicate:\normalsize}&Transaction\\
@@ -78,9 +76,15 @@ Semantic content of texts can be represented in frames, where the head of the fr
   \textit{\small role 3:\normalsize} &bread\\
   \hline
 \end{tabular}
-\end{table}
+%\end{table}
+\caption{Simple frame}
+\label{framex}
+\end{wraptable}
+The head of the frame, representing the core of the episode, can naturally be represented as a predicate but the trick is to find out which words have which roles. In linguistics this is called case grammar \citep{dowty1991} and roles have specific names as \textit{agent - patient}. In systems the names are not important and can be asigned when frame induction is complete.
 
-The head of the frame, representing the core of the episode, can naturally be represented as a predicate but the trick is to find out which words have which roles. In linguistics this is called case grammar \citep{dowty1991}. As the example above shows, the roles are represented by different syntactic parts of speech in both sentences, the object and subject are switched, furthermore, the verbs are different. But even with knowledge of specific vebrs which bear the same meaning with switched subject/indirect-object, we need to have technology to let machines generate semantics next to syntacs in order to let machines be able to ( do as if they ) understand language and process new text in a meaningfull way. Hence, automatic semantic analysis and representation is required.\\ 
+As the example above shows, the roles are represented by different syntactic parts of speech in both sentences, the object and subject are switched, furthermore, the verbs are different. But even with knowledge of specific vebrs which bear the same meaning with switched subject/indirect-object, we need to have technology to let machines generate semantics next to syntacs in order to let machines be able to ( do as if they ) understand language and process new text in a meaningfull way. Hence, automatic semantic analysis and representation is required.
+
+The Framenet project \citep{framenet} is ongoing on defining frames manually which could be mapped on a text to extrct frames. But with the increasing amount of digital information it is usefull to have auomatic semantic frame induction, since new words can be added to a language and meanings can change.
 
 In this project we investigate wheter probabalistic latent-variable models can cluster verbs (as being a predicate) based on their meaning, which is inferred from the occurences of arguments it is encountered with. The clusters then make up the broader meaning of the predicates. The data we use contains triples of verb-subject-object (see section\ref{data}), so induced frames contain only two roles. The models (described in section \ref{models}) induce frames based on the assumption the meaning of a verb relative to meaning of other verbs can be induced from its context. Hence the broader meaning is latent. To evaluate our models we use two metrics, one of which uses framenet data, the other to check wheter the resulting frames are coherent. See section \ref{results} for more detail.
 
@@ -293,14 +297,17 @@ We further trimmed the data to consider only the \%25 most common verbs
 
 
 \section{Experiments}
-The number of frames in both models must be determined before induction. When choosing for a low number of frames the clusters will be big and thus the meaning of a cluster vague. But a high number of frames has, next to high computational costs also a danger of overfitting the data. When unrelated verbs occur with the same arguments often they will be clustered and maybe will even make up one cluster, while with a lower number of frames other verbs would be included, diinishing one of the unrelated verbs as noise.
+The number of frames in both models must be determined before induction. When choosing for a low number of frames the clusters will be bigger and thus the meaning of a cluster more vague. But a high number of frames has, next to high computational costs also a danger of overfitting the data. When unrelated verbs occur with the same arguments often they will be clustered and may even make up one cluster, while with a lower number of frames other verbs would be included, diminishing one of the unrelated verbs as noise.
 
-The alphas and betas are known \citep{oconnor2013} to be hard to determine, and therefore need experiments to be set to optimal values for a specific problem. We used, expensive but easy to implement, grid search to determine all parameters to test with. With grid-search a model is build with certain parameters, this model is then evaluated on a cross validation set. When all possible models are evaluated the highest scoring model is tested on. 
+The alphas and betas are known  to be hard to determine \citep{oconnor2013}, and therefore need experiments to be set to optimal values for a specific problem. We used, expensive but easy to implement, grid search to determine all parameters to test with. With grid-search a model is build with certain parameters, this model is then evaluated on a cross validation set. When all possible models are evaluated the highest scoring model is tested with a (kept aside) testset. We ran gridsearch for model 0 on 50 - 200 frames, with steps of 50, and $\alpha$ 0.1, 0.5, 1, 1.5, 2. Model 1 the same, and $\beta$ with values as $\alpha$
 
 \section{Results}
 \label{results}
+
 \subsection{Frame Coherency}
-rame coherency: for a datapoint $(v,s,o)$ and a tuple $(v^r,s,o)$ where $v^r$ is a random choses verb: $P(v\mid s,o) \geq P(v^r\mid s,o)$  
+The clusters of verbs are based on the arguments with which they are occuring in the data. So to test how well the models performed the probability of a triple in the testset, a real triple, should be greater than a triple with the verb replaced by a random one. This metric is the same as \citeauthor{rooth1999} used. More formally: for a datapoint $(v,s,o)$ and a tuple $(v^r,s,o)$ where $v^r$ is a random chosen verb: $P(v\mid s,o) \geq P(v^r\mid s,o)$.
+The results are percentages of datapoints which satisfy this condition. Note though that if the random verb-triple is assigned the same frame as its `parent' real triple, this metric loses its meaning, but since the number of frames is high this probabilty is low. Furthermore, one can assume that the occurences of same frame assignement cancel eachother out, i.e. the random triple has higher probabilty than the real one as many times as vice versa.
+
 \subsection{Frame Correctness}
 % I (Eli) can expond here on the relation/contrast/etc.
 %   between what we're doing and Framenet;
