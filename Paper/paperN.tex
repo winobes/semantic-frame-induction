@@ -84,9 +84,9 @@ The head of the frame, representing the core of the episode, can naturally be re
 
 As the example above shows, the roles are represented by different syntactic parts of speech in both sentences, the object and subject are switched, furthermore, the verbs are different. But even with knowledge of specific vebrs which bear the same meaning with switched subject/indirect-object, we need to have technology to let machines generate semantics next to syntacs in order to let machines be able to ( do as if they ) understand language and process new text in a meaningfull way. Hence, automatic semantic analysis and representation is required.
 
-The Framenet project \citep{framenet} is ongoing on defining frames manually which could be mapped on a text to extrct frames. But with the increasing amount of digital information it is usefull to have auomatic semantic frame induction, since new words can be added to a language and meanings can change.
+The FrameNet project \citep{framenet} is an ongoing manual effort to define frames which could be mapped on a text to extract frames. But with the increasing amount of digital information, not to mention the inherent tediousness of building such a resource one word at a time, the prospect of (partially or completely) automating semantic frame induction is enticing. An automatic system could provide more complete descriptions of frames in current document banks and could better adapt to new words and evolving meanings.
 
-In this project we investigate wheter probabalistic latent-variable models can cluster verbs (as being a predicate) based on their meaning, which is inferred from the occurences of arguments it is encountered with. The clusters then make up the broader meaning of the predicates. The data we use contains triples of verb-subject-object (see section\ref{data}), so induced frames contain only two roles. The models (described in section \ref{models}) induce frames based on the assumption the meaning of a verb relative to meaning of other verbs can be induced from its context. Hence the broader meaning is latent. To evaluate our models we use two metrics, one of which uses framenet data, the other to check wheter the resulting frames are coherent. See section \ref{results} for more detail.
+In this project we investigate whether probabalistic latent-variable models can cluster verbs (as being a predicate) based on their meaning, which is inferred from the occurences of arguments it is encountered with. The clusters then make up the broader meaning of the predicates. The data we use contains triples of verb-subject-object (see section\ref{data}), so induced frames contain only two roles. The models (described in section \ref{models}) induce frames based on the assumption the meaning of a verb relative to meaning of other verbs can be induced from its context. Hence the broader meaning is latent. To evaluate our models we use two metrics, one of which uses framenet data, the other to check wheter the resulting frames are coherent. See section \ref{results} for more detail.
 
 %\section{Related Work}
 We based our work on two papers: \textit{`Inducing a semantically annotated lexicon via em-based clustering.'} by \citeauthor{rooth1999} and \textit{`Learning frames from text with an unsupervised latent variable model.'} by \citeauthor{oconnor2013}. In the first article clustering is realized by applying expectation maximalization on a simple model. This model produces frames in the form of 3 distributions, one for the predicate and two for the arguments. Frame assignement is result of calculating  probabilities for a given tuple, the frame that gives the highest probaility is then the assigned. We will use this model as our baseline (as in the O'Connor paper). The second paper covers multliple models of which we implemented one. The difference with the baseline model is the assumption that a document uses a set of frames repeatedly as a rsult of a document having a (couple of) topics. In our data the tuples are not annotated with documents so we used this assumption in such a way that each verb covers one document.  
@@ -310,14 +310,58 @@ The results are percentages of datapoints which satisfy this condition. Note tho
 
 \subsection{Frame Correctness}
 % I (Eli) can expond here on the relation/contrast/etc.
-%   between what we're doing and Framenet;
+%   between what we're doing and FrameNet;
 %   I think O'Connor brings up some technical and/or methodological points
 %   about ways we can vs. can't use the FN data for evaluating
 %   induction and such, I'll look it over again.
 
-Frame correctness: for the top 25 most probable verbs per frame $TV$ and framenet classes of verbs $FN$: \[\frac{2|TV\cap FN|}{|TV|+|FN|}\]
+%\subsection{Relation to FrameNet}
+
+The FrameNet project is a manually compiled and annotated database for frame semantics. It tracks frames, the cast of elements that play specified roles within each frame, individual word-senses (``lexical units'' in FrameNet-speak) that instantiate those elements, certain relationships between frames, examples, etc. 
+
+We want to compare our induced frames to FrameNet's manually annotated (i.e. correct) frames.
+In our case, we restrict our attention to sets of verbs.
+The idea is that if the verb groups identified by our model are actually groups that belong together in a frame, there should be a FrameNet frame that includes these verbs as well. Inclusion of a word in FrameNet frame for us simply means that the word is a lexical unit for that frame; since lexical units are tagged with parts of speech, extracting verbsets for each frame is simple.
+%Following the example of \citeauthor{oconnor2013}, we do not consider FrameNet frames with a very small number of verbs
+
+We can thus compute a rough ``correctness'' measure for our models' induced frames by comparing their verbsets with the verbsets extracted from FrameNet, using the Dice coefficient as a similarity measure. For verbsets $M$ and $F$ of some model-induced frame and some FrameNet frame, respectively, their Dice similarity is \[\frac{2|M\cap F|}{|M|+|F|}\]
+% Dice has certain properties that work well in this situation.
+For each FrameNet frame, we can find the frame given by our model that is most Dice-similar.
+Ideally, we want each FrameNet frame to have a high-scoring match among the frames of our model.
+%and also for these matches not to be identical
+
+One issue with implementing this measure is that our models return probability distributions, not verbsets. Specifically, for each induced frame, we have a distribution over all verbs from our dataset. To compare these frames with those from FrameNet using Dice, however, we need to turn these distributions into discrete sets, and there is not a clear method to do this.
+%(It is important to keep in mind that the collection of verbsets is not a partition on the set of all verbs appearing in the data, since each verb can appear in more than one frame (indeed, some of the most interesting test cases for automated frame inductors involve such multi-frame verbs).)
+We can take the most probable $n$ (say, five) verbs for each frame, but this will likely run into problems in the case of both high-population and low-population frames. Alternatively, we can take verbs within a given frame with a probability greater than some threshold value $p$ (say, $0.02$), which may perform better in certain cases but risks returning empty verbsets for frames with distributions that are particularly spread out.
+
+
+
+
+There are some substantial methodological issues with this approach even if it does function as a general evaluation method. 
+
+Although many frames are events and thus commonly feature verbs as core elements, FrameNet is not verb-centric by design. Some frames do not encompass events and include no verbs at all.
+FrameNet also imposes inheritance relations between frames. Our model could potentially identify verbsets that have these relations, though it has no way of recognizing it has done so.
+In short, to use FrameNet's data, we end up discarding most of the information in the annotations and using only a fraction of the frames and lexical units. Arguably this is not so much of an issue so long as the extracted verbsets are still useful in evaluating our own model, even if the FrameNet data is being used in an idiosyncratic way.
+
+Perhaps a more important point, though, is that completeness is not a primary goal for FrameNet. Not every English word is included as a lexical unit, and not all words that are included are fully annotated with all their senses as lexical units in appropriate frames.
+In practice this means that if our model induces a certain verbset that does constitute a coherent semantic frame, but some of the verbs in the set do not show up in the FrameNet data for whatever reason, that frame's Dice score will suffer.
+% 
+
+
+
+
+On a more abstract level, to what extent do lower similarity scores with FrameNet necessarily mean our model has identified frames that are semantically ``incorrect'' as opposed to frames which are in a sense orthogonal?
+% Does this make sense? Maybe this should go in "Discussion"..?
+
+
+
+
+
+%Frame correctness: for the top 25 most probable verbs per frame $TV$ and framenet classes of verbs $FN$: \[\frac{2|TV\cap FN|}{|TV|+|FN|}\]
+
 
 \subsection{Model 0}
+
 \subsection{Model 1}
 
 
