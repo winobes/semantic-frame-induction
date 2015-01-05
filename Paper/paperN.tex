@@ -58,7 +58,7 @@
 \section{Introduction}
 The growing body of digital publications contains too much information for a single human being to process; it is even hard to keep up to date on a particular topic. It would be useful to be aided by technology that creates reliable summarizations. As a natural language processing task, summarization consists of two parts: first, extract the semantic content of a text, and then represent it in a condensed human readable output. The first part of such a technology, extracting semantic content, is what we deal with in this project. This step may also be useful on its own, for example, in automatic stock trading systems. Knowing what is published about publicly traded companies at the moment of publication can increase prophet margins for so-called high-frequency trading algorithms. Semantic representations have applications in other natural language processing as well. For example, interlingua approaches to machine translation try to match sentences in the source and target language to a common generic semantic representation \cite{boas2005}.
 
-Semantic content of a sentence can be represented in a frame. The main verb phrase of the sentence is the head of the frame and can be interpreted as predicate, representing the core of the episode described by the sentence. The trick is to find out what the arguments of the predicate are. In linguistics, argument selection is called case grammar \citep{dowty1991} and arguments (or roles) have specific names as \textit{agent - patient}. In computational systems names are not important and can be assigned when frame induction is complete.
+Semantic content of a sentence can be represented in a frame. The main verbphrase of the sentence is the head of the frame and can be interpreted as predicate, representing the core of the episode described by the sentence. The trick is to find out what the arguments of the predicate are. In linguistics, argument selection is called case grammar \citep{dowty1991} and arguments (or roles) have specific names as \textit{agent - patient}. In computational systems names are not important and can be assigned when frame induction is complete.
 
 The problem of semantic content can be illustrated by this simple example: \textit{'Alice buys a bread from the baker'} describes the exact same situation as \textit{`The baker sells Alice a bread'}. Thus the semantic content of these sentences can be represented in one frame, where the head of the frame represents the core of the episode or situation and involvement is expressed by assigning roles to things or people. In general these roles can be anything like location, time, manner etc. The frame for the sentences above is depicted in table \ref{framex}.
 \begin{wraptable}{r}{.3\textwidth}
@@ -80,12 +80,12 @@ The problem of semantic content can be illustrated by this simple example: \text
 \end{wraptable}
 As the example above shows, the roles are represented by different syntactic parts of speech in both sentences: the object and subject are switched. Furthermore, the verbs are different. Even given the knowledge of specific verbs that bear the same meaning with switched subject/indirect-object, we need to generate semantic representations on top of syntax in order to let machines (act as if they) understand language and process new text in a meaningful way. Hence, automatic semantic analysis and representation is required for further automatization.
 
-The FrameNet project \citep{framenet} is an ongoing manual effort to define frames which could be mapped onto text to give a semantic representation. But with the increasing amount of digital information, not to mention the inherent tediousness of building such a resource one word at a time, the prospect of (partially or completely) automating semantic frame induction is enticing. An automatic system could provide more complete descriptions of frames in current document banks and could better adapt to new words and evolving meanings.
+The FrameNet project \citep{FrameNet} is an ongoing manual effort to define frames which could be mapped onto text to give a semantic representation. But with the increasing amount of digital information, not to mention the inherent tediousness of building such a resource one word at a time, the prospect of (partially or completely) automating semantic frame induction is enticing. An automatic system could provide more complete descriptions of frames in current document banks and could better adapt to new words and evolving meanings.
 
-In this project we investigate whether probabilistic latent-variable models can cluster verbs based on their meaning, which is inferred from the arguments with which it occurs. These clusters then make up a broader, but hopefully distinct, meaning. The data we use contains triples of verb-subject-object (see section \ref{data}), so induced frames contain only two roles. The models (described in section \ref{models}) induce frames based on the assumption the meaning of a verb relative to meaning of other verbs can be induced from its context. Hence the broader meaning is latent. To evaluate our models we use two metrics, one of which uses framenet data to check whether the induced frames are similar to clusters of verbs in framenet, the other to check whether the resulting frames are coherent, i.e. whether the found clusters are not completely random. See section \ref{results} for more detail.
+In this project we investigate whether probabilistic latent-variable models can cluster verbs based on their meaning, which is inferred from the arguments with which it occurs. These clusters then make up a broader, but hopefully distinct, meaning. The data we use contains triples of verb-subject-object (see section \ref{data}), so induced frames contain only two roles. The models (described in section \ref{models}) induce frames based on the assumption the meaning of a verb relative to meaning of other verbs can be induced from its context. Hence the broader meaning is latent. To evaluate our models we use two metrics, one of which uses FrameNet data to check whether the induced frames are similar to clusters of verbs in FrameNet, the other to check whether the resulting frames are coherent, i.e. whether the found clusters are not completely random. See section \ref{results} for more detail.
 
 %\section{Related Work}
-We based our work on two papers: \textit{`Inducing a semantically annotated lexicon via em-based clustering.'} by \citeauthor{rooth1999} and \textit{`Learning frames from text with an unsupervised latent variable model.'} by \citeauthor{oconnor2013}. In the first article clustering is realized by applying expectation maximization on a simple co-occurance model. This model produces frames in the form of two distributions, one for the predicate, a distribution over verbs, and one for the arguments, a nouns. Following O'Connor, we modify this model slightly to accommodate verb-subject-object triples. A triple is assigned to the frame for which is probability of occurring is highest. We will use this model as our baseline (as in the O'Connor paper). The second paper covers two additional models, of which we implemented one. This model differs from the baseline model by introducing the assumption that a document generates sentences frame a restricted set of frames. This assumption is justified (as in latent Dirichlet allocation) \cite{blei2003} by the intuition that documents generally have a limited number of topics and thus use a proper subset of the frames. In our data the tuples are not annotated with documents so we used this assumption in such a way that each verb covers one document.  
+We based our work on two papers: \textit{`Inducing a semantically annotated lexicon via em-based clustering.'} by \citeauthor{rooth1999} and \textit{`Learning frames from text with an unsupervised latent variable model.'} by \citeauthor{oconnor2013}. In the first article clustering is realized by applying expectation maximalization on a simple co-occurance model. This model produces frames in the form of two distributions, one for the predicate, a distribution over verbs, and one for the arguments, a nouns. Following O'Connor, we modify this model slightly to accommodate verb-subject-object triples. A triple is assigned to the frame for which is probability of occurring is highest. We will use this model as our baseline (as in the O'Connor paper). The second paper covers two additional models, of which we implemented one. This model differs from the baseline model by introducing the assumption that a document generates sentences from a restricted set of frames. This assumption is justified (as in latent Dirichlet allocation) \cite{blei2003} by the intuition that documents generally have a limited number of topics and thus use a proper subset of the frames. In our data the tuples are not annotated with documents so we used this assumption in such a way that each verb covers one document.  
 
 
 \section{Induction Models}
@@ -279,13 +279,13 @@ frame $f$; that is, $\tilde c(d_i, f) = \tilde c(f, w_{ij}^v)$.}
 \section{Dataset - Verbargs}
 \label{data}
 
-A syntactic-ngram is a $k$-word rooted subtree of some sentence.
+A syntactic-ngram is a $k$-word rooted sub-tree of some sentence.
 Google syntactic-ngrams is a corpus of ngrams extracted from 3.5 million English language 
 books and labeled with Penn Treebank part-of-speech tags Stanford-basic dependency 
 labels \citep{ngrams2013}.
 Each ngram also includes frequency counts by year.
 
-This project uses the verbargs subeset (130M items) of Google syntactic-ngrams.
+This project uses the verbargs subset (130M items) of Google syntactic-ngrams.
 An ngram in the verbargs dataset consist of a verb and all of its 
 immediate arguments.
 We considered only the VSO's in this dataset, that is; we pruned verbargs to
@@ -301,13 +301,13 @@ The number of frames in both models must be determined before induction can take
 
 To facilitate the evaluation of our results, we split off two uniform random subsets of the data, the test set (\%10), and the cross-verb validation set (\%20). We trained the models on the remaining data (the training set). To train the baseline model (model 0), we ran the expectation maximization algorithm until the total change in the posterior probabilities for words plus the prior for frames was less that $0.01$. The trained model consists of $3\times|Frames|$ distributions: a distribution for each frame, for each argument. Model 1 is implemented using Gibbs sampling. We allowed $1000$ iterations of sampling, ignoring the first $50$ as \emph{burn in} (see \citet{raftery1992} for further discussion). Since we are less na\"ive about mapping syntactic positions to semantic roles, we combine the subject/object distributions, so model 1 gives $2\times|Frames|$ distributions: for each frame, one for verbs and one for nouns.
 
-The $\alpha$ and $\beta$ hyperparameters in model 1 are known  to be hard to determine \citep{oconnor2013}, and therefore need to be experimentally optimized for our specific problem. We used an expensive, but easy to implement grid search to determine the best values for $\alpha$ and $\beta$. The grid search builds, for each possible parameter set, a model which is evaluated on the cross validation set. The highest scoring model is tested with the test set. We ran grid search for model 0 on $50$ - $200$ frames, with steps of $50$, and $\alpha$ of $0.1, 0.5, 1, 1.5$, and $2$. The grid search for Model 1 was the the same, additionally testing $\beta$ across the same values as $\alpha$
+The $\alpha$ and $\beta$ hyper-parameters in model 1 are known  to be hard to determine \citep{oconnor2013}, and therefore need to be experimentally optimized for our specific problem. We used an expensive, but easy to implement grid search to determine the best values for $\alpha$ and $\beta$. The grid search builds, for each possible parameter set, a model which is evaluated on the cross validation set. The highest scoring model is tested with the test set. We ran grid search for model 0 on $50$ - $200$ frames, with steps of $50$, and $\alpha$ of $0.1, 0.5, 1, 1.5$, and $2$. The grid search for Model 1 was the the same, additionally testing $\beta$ across the same values as $\alpha$
 \section{Results}
 \label{results}
 
 \subsection{Frame Coherency}
-Verb clusters are based on the arguments with which they occurring in the data. So to test how well the models perform on clustering, the probability that the model generates a triple from the testset, should be greater than this triple with a random verb in place of the real one. This metric is the same as the one used by \citeauthor{rooth1999}. More formally: for a datapoint $(v,s,o)$ and a tuple $(v^r,s,o)$ where $v^r$ is a random chosen verb: $P(v\mid s,o) \geq P(v^r\mid s,o)$.
-The results are percentages of data points which satisfy this condition. Note though that if the random verb-triple is assigned the same frame as its `parent' real triple, this metric loses its meaning, but since the number of frames is high this probability is low. Furthermore, one can assume that the occurrences of same frame assignment cancel each other out, i.e. the random triple has higher probability than the real one as many times as vice versa.
+Verb clusters are based on the arguments with which they occurring in the data. So to test how well the models perform on clustering, the probability that the model generates a triple from the test-set, should be greater than this triple with a random verb in place of the real one. This metric is the same as the one used by \citeauthor{rooth1999}. More formally: for a data-point $(v,s,o)$ and a tuple $(v^r,s,o)$ where $v^r$ is a random chosen verb: $P(v\mid s,o) \geq P(v^r\mid s,o)$.
+The results are percentages of data-points which satisfy this condition. Note though that if the random verb-triple is assigned the same frame as its `parent' real triple, this metric loses its meaning, but since the number of frames is high this probability is low. Furthermore, one can assume that the occurrences of same frame assignment cancel each other out, i.e. the random triple has higher probability than the real one as many times as vice versa.
 
 \subsection{Frame Correctness}
 % I (Eli) can expond here on the relation/contrast/etc.
@@ -358,13 +358,14 @@ On a more abstract level, to what extent do lower similarity scores with FrameNe
 
 
 
-%Frame correctness: for the top 25 most probable verbs per frame $TV$ and framenet classes of verbs $FN$: \[\frac{2|TV\cap FN|}{|TV|+|FN|}\]
+%Frame correctness: for the top 25 most probable verbs per frame $TV$ and FrameNet classes of verbs $FN$: \[\frac{2|TV\cap FN|}{|TV|+|FN|}\]
 \section{Results}
-These results are experimental, i.e. the parameters are guessed and therefor probably not optimal. (Since gridsearchis more expensive than planned for the actual results are still in progress.) In this experiment the frames were put on $200$, $\alpha$ and $\beta$ both on $0.5$.\\
+These results are experimental, i.e. the parameters are guessed and therefor probably not optimal. (Since grid-search is more expensive than planned for the actual results are still in progress.) In this experiment the frames were put on $200$, $\alpha$ and $\beta$ both on $0.5$.\\
 \begin{table}[h]
+\centering
 \begin{tabular}{|l||c|c|}
   \hline
-  &dicesim&coherencey\\
+  &dicesim&coherency\\
   \hline
   \hline
   model 0& 0.28&19\%  \\
@@ -422,11 +423,11 @@ That you ``swim \emph{in} a lake'' versus ``ice skate \emph{on} a lake''
 indicates that the relationship between swimming and lakes is different from the one between
 ice skating and lakes.
 
-More generally, VSO models don't take full advantage of the various kinds of argumens
+More generally, VSO models don't take full advantage of the various kinds of arguments
 in the verbargs dataset. 
 As we have seen, only a fraction of verbs actually occur as part of a VSO subtree.
 By considering only VSOs, we may introduce some bias in the frames that we can induce,
-since frames with particular role configurationts (such as \emph{agent, patient}) may
+since frames with particular role configurations (such as \emph{agent, patient}) may
 lend themselves better to transitive verbs. 
 
 Finally, the models that we consider are essentially performing verb \emph{clustering}.
@@ -436,11 +437,12 @@ roles.
 That model 1 performs well on such a large, diverse dataset as Google syntactic ngrams is
 encouraging since such a corpus would be necessary to induce semantic roles on top of frames.  
 
-\section{Conclusion}
 
+\section{Conclusion}
+Model 1 did find clusters of verbs of which the meaning can be covered by 1 predicate. Although the induced frames have often vague or broad meaning the approach works well if data is abundant. The improvement of model 1 on model 0 has a significant effect and implicates even better results can be acquired by further improvements. The kind of clustering done by these models, with opposites assigned to the same frame, can be useful for automatic stock trading systems if implemented with sentiment analysis to split on opposites. The frames are too vague to use for summarizations though.
 
 \section*{Who did what}
-We all tried to work as much as possible and necessary on the project. Bill had a leading role in building the models. Model 1 is completely build and implemented by Bill. Jacob implemented frame coherency and Eli frame correctness. Everybody ran some experiments and Jacob is still running grid search (made a big estimation error in cost of grid search). Any section is written by the one who implemented this particular part. The rest of the sections are composed of bits of everybody. 
+We all tried to work as much as possible and necessary on the project. Bill had a leading role in building the models. Model 1 is completely build and implemented by Bill. Jacob implemented frame coherency and Eli frame correctness. Everybody ran some experiments and Jacob is still running grid search (made a big estimation error in cost of grid-search). Any section is written by the one who implemented this particular part. The rest of the sections are composed of bits of everybody. 
 
 \bibliography{refs.bib}
 
