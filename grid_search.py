@@ -72,4 +72,4 @@ def verb_dists(model):
 
     return verb_dists
 
-test()
+#test()

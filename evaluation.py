@@ -13,6 +13,24 @@ def frames_by_frequency(frame_dists):
         frame_freq[f].sort(key=lambda x: x[1], reverse=True)
     return frame_freq
 
+def m0_to_dists(m0):
+    frame_dists = m0[0]
+    F = len(frame_dists)
+    frame_dists_v = {f:{} for f in range(F)}
+    frame_dists_w = {f:{} for f in range(F)}
+    for f in range(F):
+        for v in frame_dists[f]['v']:
+            frame_dists_v[f][v] = frame_dists[f]['v'][v]
+        for s in frame_dists[f]['s']:
+            frame_dists_w[f][s] = frame_dists[f]['s'][s]/2
+        for o in frame_dists[f]['o']:
+            if o in frame_dists_w[f]:
+                frame_dists_w[f][o] += frame_dists[f]['o'][o]/2
+            else:
+                frame_dists_w[f][o] = frame_dists[f]['o'][o]/2
+    return(frame_dists_v, frame_dists_w)
+
+
 def show_most_common(frame_dists_v, frame_dists_w, top=25):
 
     frame_freq_v = frames_by_frequency(frame_dists_v)
