@@ -395,16 +395,16 @@ These results are experimental, i.e. the parameters are guessed and therefor pro
   enjoyment & enjoy, please, bow, amount\\
   \hline
 \end{tabular}
-\label{exframes}
 \caption{Frame examples}
+\label{exframes}
 \end{table}
 
 \section{Discussion}
-As table \ref{results} show, coherency  improved significantly, whereas the frame correctness did not so much. But the frames induced by model 0 do not cover all verbs, actually only 3 verbs are assigned to a frame. It is not clear why this happens, but this are still only experimental results.  Since there are 200 frames it is obvious that the coherency is so low. Other experiments have shown that it is possible to cluster with model 0 though. 
+As table \ref{results} shows, coherency  improved significantly, whereas the frame correctness did not so much. But the frames induced by model 0 do not cover all verbs, actually only 3 verbs are assigned to a frame. It is not clear why this happens, but this are still only experimental results.  Since there are 200 frames it is obvious that the coherency is so low. Other experiments have shown that it is possible to cluster with model 0 though. 
 
-The frames in table \ref{exframes} are frames induced by model 1 and are meaningful in the sense that they consist of clusters of verbs that seem to have a similar meaning. Nonetheless, in \textit{harming anotherly} there are verbs which would be better left out. They are assigned this frame though because they occurred in company of the same arguments often. The affection frame is remarkable since these are exactly opposites. This happens in some form in more frames though and can be explained by the fact that verbs with opposite meanings are used with the same arguments, this can be seen as a weakness of the model.
+Table \ref{exframes} showes some frames induced by model 1 and are meaningful in the sense that they primarily consist of clusters of verbs that seem to have a similar meaning. Nonetheless, in \textit{harming anotherly} there are verbs which would be better left out. They are assigned this frame though because they occurred in company of the same arguments often. The affection frame is remarkable since these are exactly opposites. This happens in some form in more frames though and can be explained by the fact that verbs with opposite meanings are used with the same arguments, this can be seen as a weakness of the model.
 
-Furthermore auxiliary verbs get mostly assigned a complete frame, i.e. they are the only verb assigned to a frame. Other verbs like \textit{(say, get, find, bring, make, see, ask, take, have, mean, use, like, hear, understand, afford, help, call, know, give, do, tell, find)} also get assigned a complete frame. This is most likely caused by the fact that these verbs can have a wide range of arguments, and are in the sense of meaning-of-a-verb by nouns it is encountered with, sort of meaningless. This is again a weakness of the model, but could possibly be diminished with more data.   
+Furthermore auxiliary verbs get mostly assigned a complete frame, i.e. they are the only verb assigned to a frame. Other verbs like \textit{say, get, find, bring, make, see, ask, take, have, mean, use, like, hear, understand, afford, help, call, know, give, do, tell, find} also get assigned a complete frame. This is most likely caused by the fact that these verbs can have a wide range of arguments, and are in the sense of meaning-of-a-verb-by-nouns-it-is-encountered-with, sort of meaningless. This is again a weakness of the model, but could possibly be diminished with more data.   
 
 \section{Future Work}
 One big weakness of this project over the results of \citet{oconnor2013} is that 
@@ -426,7 +426,7 @@ ice skating and lakes.
 Model 1 did find clusters of verbs of which the meaning can be covered by 1 predicate. Although the induced frames have often vague or broad meaning the approach works well if data is abundant. The improvement of model 1 on model 0 has a significant effect and implicates even better results can be acquired by further improvements. The kind of clustering done by these models, with opposites assigned to the same frame, can be usefull for automatic stock trading systems if implemented with sentiment analysis to split on opposites. The frames are too vague to use for summarizations though.
 
 \section*{Who did what}
-We all tried to work as much as possible and necessary on the project. Bill had a leading role in building the models. Model 1 is completely build and implemented by Bill. Jacob implemented frame coherency and Eli frame correctness. Everybody ran some experiments and Jacob is still running grid search (made a big estimation error in cost of grid-search). Any section is written by the one who implemented this particular part. The rest of the sections are composed of bits of everybody. 
+We all tried to work as much as possible and necessary on the project. Bill had a leading role in building the models. Model 1 is completely build and implemented by Bill. Jacob implemented frame coherency and Eli frame correctness. Everybody ran some experiments and Jacob is still running grid search (made a big estimation error in cost of grid-search). Any section is written by the one who implemented this particular part. The rest of the sections are composed of bits of everybody, but most important and precise work is done by Bill.
 
 \bibliography{refs.bib}
 
