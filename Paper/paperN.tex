@@ -89,14 +89,14 @@ The FrameNet project \citep{framenet} is an ongoing manual effort to define fram
 In this project we investigate whether probabalistic latent-variable models can cluster verbs based on their meaning, which is inferred from the arguments with wich it occurs. These clusters then make up a broader, but hopefully distinct, meaning. The data we use contains triples of verb-subject-object (see section \ref{data}), so induced frames contain only two roles. The models (described in section \ref{models}) induce frames based on the assumption the meaning of a verb relative to meaning of other verbs can be induced from its context. Hence the broader meaning is latent. To evaluate our models we use two metrics, one of which uses framenet data to check wheter the induced frames are similar to clusters of verbs in framenet, the other to check wheter the resulting frames are coherent, i.e. wheter the found clusters are not completely random. See section \ref{results} for more detail.
 
 %\section{Related Work}
-We based our work on two papers: \textit{`Inducing a semantically annotated lexicon via em-based clustering.'} by \citeauthor{rooth1999} and \textit{`Learning frames from text with an unsupervised latent variable model.'} by \citeauthor{oconnor2013}. In the first article clustering is realized by applying expectation maximalization on a simple model. This model produces frames in the form of 3 distributions, one for the predicate, a distribution over verbs, and two for the arguments, one distribution over subjects one over objects. A triple is assigned to a frame if the probability of this triple is highest in this frame. We will use this model as our baseline (as in the O'Connor paper). The second paper covers multliple models of which we implemented one. The difference with the baseline model is the assumption that a document uses a set of frames repeatedly as a result of a document having a (couple of) topics. [TODO: needs some further explanantion] In our data the tuples are not annotated with documents so we used this assumption in such a way that each verb covers one document.  
+We based our work on two papers: \textit{`Inducing a semantically annotated lexicon via em-based clustering.'} by \citeauthor{rooth1999} and \textit{`Learning frames from text with an unsupervised latent variable model.'} by \citeauthor{oconnor2013}. In the first article clustering is realized by applying expectation maximalization on a simple cooccurance model. This model produces frames in the form of two distributions, one for the predicate, a distribution over verbs, and one for the arguments, a nouns. Following O'Connor, we modify this model slightly to accomodate verb-subject-object triples. A triple is assigned to the frame for which is probability of occuring is highest. We will use this model as our baseline (as in the O'Connor paper). The second paper covers two additional models, of which we implemented one. This model differs from the baseline model by introducing the assumption that a document generates sentences frome a restricted set of frames. This assumption is justified (as in latent Dirichelt allocation) \cite{blei2003} by the intuition that documents generally have a limited number of topics. In our data the tuples are not annotated with documents so we used this assumption in such a way that each verb covers one document.  
 
 
 \section{Induction Models}
 \label{models}
 We consider two probabalistic latent-variable models that learn semantic frames
 from verb-subject-object tripples (VSO's).
-The goal of these models is to use th syntactic information give by a VSO to
+The goal of these models is to use the syntactic information given by a VSO to
 infer what kind of event it describes (i.e., to which semantic frame it belongs).
 
 
@@ -151,12 +151,16 @@ infer what kind of event it describes (i.e., to which semantic frame it belongs)
 
 \subsection{Model 0}
 
-The approach models each VSO independenly, without considering any further context.
+This approach models each VSO independenly, without considering any further context.
 Word distributions are completely independent between arguments and accross frames.
 Tuples are clustered according to which frame's three distributions best fit the 
-three arguments.
+three arguments; that is,
 
-Model 0 is based on one originally proposed in \citet{rooth1999}, which 
+\[
+f_{v,s,o} = \argmax_f P(v|\phi_f^v) \times P(s|\phi_f^s) \times P(o|\phi_f^o)
+\]
+
+Model 0 is based on the apporach originally proposed in \citet{rooth1999}, which 
 considers noun-verb pairs. Following \citet{oconnor2013}, we expand the model
 to use the limited syntax of VSOs.
 
@@ -216,7 +220,7 @@ Where $c(w,a)$ indicates the number of times word $w$ is observed as argument $a
 It is in the nature of documents that they have some degree of internal semantic
 coherence. Put more plainly, a document is usually \emph{about} something. We
 know from topic modeling that LDA with Gibbs sampling can be very successful at
-classifying documents according to some semantic features \citep{griffiths2004}.
+classifying documents according to some semantic features \citep{blei2003}.
 Model 1 leverages this fact by making the assmumption that a given document is 
 likely to have a sparse distribution of frames. As in LDA, the document-level
 sparsity is enforced by a dirichlet prior on frame distributions (see figure
@@ -297,15 +301,16 @@ We further trimmed the data to consider only the \%25 most common verbs
 
 
 \section{Experiments}
-The number of frames in both models mustar to be determined before induction can take place. When choosing for a low number of frames the clusters will be bigger and thus the meaning of a cluster more vague. In contrast, a high number of frames bears the danger of overfitting the data, i.e. when unrelated verbs occur with the same arguments often they will be clustered and may even make up one cluster, while with a lower number of frames other verbs would be included, diminishing one of the unrelated verbs as noise.
+The number of frames in both models must be determined before induction can take place. When choosing for a low number of frames the clusters will be bigger and thus the meaning of a cluster more vague. In contrast, a high number of frames bears the danger of overfitting the data, i.e. when unrelated verbs occur with the same arguments often they will be clustered and may even make up one cluster, while with a lower number of frames other verbs would be included, diminishing one of the unrelated verbs as noise. Following \citet{rooth1999}, we estimate that the appropriate number of frames to induce is at most a couple hundred. This assumption is based on philosophical arguments of Jerry Fodor, who proposes that there should be a very limited degree of genuine interdefinability between lexical items (here frames), and that the magnitude of the lexicon should therefore be approximately equal to the number of basic concepts \citep{fodor1998}.
 
-The alphas and betas are known  to be hard to determine \citep{oconnor2013}, and therefore need experiments to be set to optimal values for a specific problem. We used, expensive but easy to implement, grid search to determine all parameters to test with. Grid-search build for each posible parameter set a model which is evaluated on a cross validation set. The highest scoring model is tested with a (kept aside) testset. We ran gridsearch for model 0 on 50 - 200 frames, with steps of 50, and $\alpha$ 0.1, 0.5, 1, 1.5, 2. Model 1 the same, and $\beta$ with values as $\alpha$
+To facilitate the evaluation of our results, we split off two uniform random subsets of the data, the test set (\%10), and the cross-verb validation set (\%20). We trained the models on the remaining data (the training set). To train the baseline model (model 0), we ran the expectation maximization algorithm until the total change in the posterior probabilities for words plus the prior for frames was less that $0.01$. The trained model consists of $3\times|Frames|$ distributions: a distribution for each frame, for each argument. Model 1 is implemented using Gibbs sampling. We allowed $1000$ iterations of sampling, ignoring the first $50$ as \emph{burn in} (see \citet{raftery1992} for further discussion). Since we are less na\"ive about mapping syntactic positions to semantic roles, we combine the subject/object distributions, so model 1 gives $2\times|Frames|$ distributions: for each frame, one for verbs and one for nouns.
 
+The $\alpha$ and $\beta$ hyperparameters in model 1 are known  to be hard to determine \citep{oconnor2013}, and therefore need to be experimentally optimized for our specific problem. We used an expensive, but easy to implement grid search to determine the best values for $\alpha$ and $\beta$. The grid search builds, for each posible parameter set, a model which is evaluated on the cross validation set. The highest scoring model is tested with the test set. We ran grid search for model 0 on $50$ - $200$ frames, with steps of $50$, and $\alpha$ of $0.1, 0.5, 1, 1.5$, and $2$. The grid search for Model 1 was the the same, additionally testing $\beta$ accross the same values as $\alpha$
 \section{Results}
 \label{results}
 
 \subsection{Frame Coherency}
-The clusters of verbs are based on the arguments with which they are occuring in the data. So to test how well the models performed on clustering, the probability of a triple in the testset, a real triple, should be greater than this triple with a random verb replacing the original one. This metric is the same as \citeauthor{rooth1999} used. More formally: for a datapoint $(v,s,o)$ and a tuple $(v^r,s,o)$ where $v^r$ is a random chosen verb: $P(v\mid s,o) \geq P(v^r\mid s,o)$.
+Verb clusters are based on the arguments with which they occuring in the data. So to test how well the models perform on clustering, the probability that the model generates a triple from the testset, should be greater than this triple with a random verb in place of the real one. This metric is the same as the one used by \citeauthor{rooth1999}. More formally: for a datapoint $(v,s,o)$ and a tuple $(v^r,s,o)$ where $v^r$ is a random chosen verb: $P(v\mid s,o) \geq P(v^r\mid s,o)$.
 The results are percentages of datapoints which satisfy this condition. Note though that if the random verb-triple is assigned the same frame as its `parent' real triple, this metric loses its meaning, but since the number of frames is high this probabilty is low. Furthermore, one can assume that the occurences of same frame assignement cancel eachother out, i.e. the random triple has higher probabilty than the real one as many times as vice versa.
 
 \subsection{Frame Correctness}
