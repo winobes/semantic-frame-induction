@@ -360,17 +360,32 @@ On a more abstract level, to what extent do lower similarity scores with FrameNe
 
 %Frame correctness: for the top 25 most probable verbs per frame $TV$ and FrameNet classes of verbs $FN$: \[\frac{2|TV\cap FN|}{|TV|+|FN|}\]
 \section{Results}
-These results are experimental, i.e. the parameters are guessed and therefor probably not optimal. (Since grid-search is more expensive than planned for the actual results are still in progress.) In this experiment the frames were put on $200$, $\alpha$ and $\beta$ both on $0.5$.\\
-\begin{table}[h]
+Grid search found the following parameter sets for the 2 measures. 
+\begin{itemize}
+  \item Best coherency with 100 frames - $\alpha$: 0.5 - $\beta$: 0.5
+  \item Best accuracy with 200 frames - $\alpha$: 2 - $\beta$: 0.5
+  \item Best both with 150 frames - $\alpha$: 0.1 - $\beta$: 0.5
+\end{itemize}
+The results on the testset are displayed in table \ref{results}. As this table shows, model 1 performs better in every case. The reslts are coherent with the above, but differences between parameter sets on model 1 are small.
+
+ \begin{table}[h]
 \centering
 \begin{tabular}{|l||c|c|}
   \hline
-  &dicesim&coherency\\
+  &accuracy&coherency\\
   \hline
   \hline
-  model 0& 0.28&19\%  \\
+  model 0 F=100 $\alpha$=.5&0.2853 & 27.12\%  \\
   \hline
-  model 1&0.29 &71\%  \\
+  model 1 F=100 $\alpha$=.5 $\beta$=.5& 0.3053 & 87.38\%  \\
+  \hline
+  model 0 F=150 $\alpha$=.1&0.2857 & 0.63\%  \\
+  \hline
+  model 1 F=150 $\alpha$=.1 $\beta$=.5& 0.3150 & 87.30\%  \\
+  \hline
+  model 0 F=200 $\alpha$=.5&0.2857 & 46.61\%  \\
+  \hline
+  model 1 F=200 $\alpha$=.5 $\beta$=.5&  0.3151& 87.74\%  \\
   \hline
 \end{tabular}
 \caption{results}
@@ -396,12 +411,12 @@ These results are experimental, i.e. the parameters are guessed and therefor pro
   enjoyment & enjoy, please, bow, amount\\
   \hline
 \end{tabular}
-\label{exframes}
 \caption{Frame examples}
+\label{exframes}
 \end{table}
 
 \section{Discussion}
-As table \ref{results} show, coherency  improved significantly, whereas the frame correctness did not so much. But the frames induced by model 0 do not cover all verbs, actually only 3 verbs are assigned to a frame. It is not clear why this happens, but this are still only experimental results.  Since there are 200 frames it is obvious that the coherency is so low. Other experiments have shown that it is possible to cluster with model 0 though. 
+As table \ref{results} shows, coherency  improved significantly, whereas the frame accuracy only marginally. Furthermore note that $\beta$ has the same value in each parameter set. In Model 1 a higher $\beta$ argues for fewer verbs per frame, with this in mind one could argue that this particular value for $\beta$ is direct resultof the number of verbs in our data. So in this case, a low $\beta$ indicates a skewed distribution of verbs over frames. This is intuitively correct, since some broader meanings can be expressed by many verbs, while others only by a few. Furthermore the results are approximately the same as \citeauthor{oconnor2013} found.
 
 The frames in table \ref{exframes} are frames induced by model 1 and are meaningful in the sense that they consist of clusters of verbs that seem to have a similar meaning. Nonetheless, in \textit{harming another} there are verbs which would be better left out. They are assigned this frame though because they occurred in company of the same arguments often. The affection frame is remarkable since these are exactly opposites. This happens in some form in more frames though and can be explained by the fact that verbs with opposite meanings are used with the same arguments, this can be seen as a weakness of the model.
 
